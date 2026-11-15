@@ -49,11 +49,91 @@ header[data-testid="stHeader"]{background:transparent}
 </style>'''.replace('ART',art),unsafe_allow_html=True)
 
 
-st.markdown('<div style="text-align:center;padding:20px 8px 8px"><div style="font-family:Cormorant Garamond,serif;font-size:clamp(36px,7vw,68px);color:#986821;letter-spacing:.05em">HOUSE OF VÈR</div><div style="font-family:Cormorant Garamond,serif;letter-spacing:.19em;color:#9a722e;font-size:clamp(12px,2vw,19px)">THE ESSENCE OF PRESENCE</div></div>',unsafe_allow_html=True)
 
-st.markdown(f'<div class="bottle"><img src="{perfume}" alt="VÈR perfume bottle" /></div>',unsafe_allow_html=True)
-st.markdown(f'<div class="price">AED 240</div><div class="muted">{t("size")}</div>',unsafe_allow_html=True)
-st.markdown(f'<a class="order" href="https://ig.me/m/houseofver_" target="_blank" rel="noopener noreferrer">{t("order")} ↗</a><a class="secondary" href="https://www.instagram.com/houseofver_/" target="_blank" rel="noopener noreferrer">{t("profile")}</a>',unsafe_allow_html=True)
-st.markdown(f'<div class="fine"></div><div class="section-title">{t("about_title")}</div><div class="copy {'rtl' if ar else ''}">{t("about")}</div>',unsafe_allow_html=True)
-st.markdown(f'<div class="fine"></div><div class="section-title">{t("delivery_title")}</div><div class="copy {'rtl' if ar else ''}">{t("delivery")}</div>',unsafe_allow_html=True)
-st.markdown(f'<div class="fine"></div><div class="section-title">{t("contact")}</div><a class="order" href="https://ig.me/m/houseofver_" target="_blank" rel="noopener noreferrer">{t("order")} ↗</a><a class="secondary" href="https://www.instagram.com/houseofver_/" target="_blank" rel="noopener noreferrer">@houseofver_</a><p class="muted">{t("notice")}</p><div class="footer">HOUSE OF VÈR · THE ESSENCE OF PRESENCE</div>',unsafe_allow_html=True)
+import html
+
+PRICE = 240
+DELIVERY = 30
+EMIRATES = ["Dubai", "Ras Al Khaimah", "Sharjah", "Ajman", "Abu Dhabi", "Umm Al Quwain", "Fujairah"]
+
+def local(en, arabic):
+    return arabic if ar else en
+
+st.markdown('<div style="text-align:center;padding:12px 8px 8px"><div style="font-family:Cormorant Garamond,serif;font-size:clamp(36px,7vw,68px);color:#986821;letter-spacing:.05em">HOUSE OF VÈR</div><div style="font-family:Cormorant Garamond,serif;letter-spacing:.16em;color:#9a722e;font-size:clamp(12px,2vw,19px)">THE ESSENCE OF PRESENCE</div></div>', unsafe_allow_html=True)
+st.markdown("""<style>
+div.stButton > button[kind="primary"]{background:#946d36;color:white;border-radius:2px;border:0;min-height:48px}
+div.stButton > button{min-height:44px}
+@media(max-width:650px){.block-container{padding:1rem .85rem 3rem}.bottle{max-width:280px;margin:12px auto}.section-title{margin:22px 0 10px}.copy{font-size:1.3rem}.price{font-size:2rem}}
+</style>""", unsafe_allow_html=True)
+
+if "cart_qty" not in st.session_state:
+    st.session_state.cart_qty = 0
+if "page" not in st.session_state:
+    st.session_state.page = "shop"
+
+nav = st.radio(local("Explore", "تصفح"), ["shop", "cart"], format_func=lambda v: (local("Perfume", "العطر") if v == "shop" else local("Cart & payment", "السلة والدفع") + f" ({st.session_state.cart_qty})"), horizontal=True, label_visibility="collapsed", key="page")
+
+if nav == "shop":
+    st.markdown(f'<div class="bottle"><img src="{perfume}" alt="VÈR perfume bottle"></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="price">AED {PRICE}</div><div class="muted">{local("VÈR Eau de Parfum · 100 ml", "عطر ڤير · ١٠٠ مل")}</div>', unsafe_allow_html=True)
+    qty = st.number_input(local("Quantity", "الكمية"), min_value=1, max_value=20, value=1, step=1)
+    if st.button(local("ADD TO CART", "أضف إلى السلة"), type="primary", use_container_width=True):
+        st.session_state.cart_qty += int(qty)
+        st.session_state.page = "cart"
+        st.rerun()
+    st.markdown(f'<a class="secondary" href="https://ig.me/m/houseofver_" target="_blank" rel="noopener noreferrer">{local("Prefer to order via Instagram?", "تفضل الطلب عبر إنستغرام؟")}</a>', unsafe_allow_html=True)
+    st.markdown(f'<div class="fine"></div><div class="section-title">{t("about_title")}</div><div class="copy">{t("about")}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="fine"></div><div class="section-title">{local("FRAGRANCE NOTES", "نوتات العطر")}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="copy">{local("Top: Pink Pepper · Warm Spice", "المقدمة: فلفل وردي · توابل دافئة")}<br>{local("Heart: Elegant Florals", "القلب: نفحات زهرية أنيقة")}<br>{local("Base: Rich Woods · Leather · Amber · Musk", "القاعدة: أخشاب غنية · جلد · عنبر · مسك")}</div>', unsafe_allow_html=True)
+else:
+    st.markdown(f'<div class="section-title">{local("YOUR SHOPPING BAG", "سلة التسوق")}</div>', unsafe_allow_html=True)
+    if st.session_state.cart_qty == 0:
+        st.info(local("Your bag is empty.", "سلتك فارغة."))
+        if st.button(local("Shop VÈR", "تسوق ڤير"), use_container_width=True):
+            st.session_state.page = "shop"
+            st.rerun()
+    else:
+        cart_qty = st.number_input(local("VÈR Eau de Parfum · 100 ml — Quantity", "عطر ڤير · ١٠٠ مل — الكمية"), min_value=0, max_value=20, step=1, key="cart_qty")
+        if cart_qty == 0:
+            st.session_state.page = "shop"
+            st.rerun()
+        emirate = st.selectbox(local("Delivery emirate", "إمارة التوصيل"), EMIRATES)
+        subtotal = PRICE * cart_qty
+        total = subtotal + DELIVERY
+        st.markdown(f"**{local('Perfume subtotal', 'قيمة العطر')}:** AED {subtotal}")
+        st.markdown(f"**{local('Delivery', 'التوصيل')}:** AED {DELIVERY}")
+        st.markdown(f"### {local('Total', 'الإجمالي')}: AED {total}")
+        st.caption(local("Delivery is AED 30 to all seven listed emirates, per order.", "رسوم التوصيل ٣٠ درهماً للطلب إلى جميع الإمارات السبع."))
+        st.markdown(f"#### {local('Delivery details', 'بيانات التوصيل')}")
+        with st.form("delivery_details"):
+            customer = st.text_input(local("Full name", "الاسم الكامل"))
+            phone = st.text_input(local("UAE mobile number", "رقم الهاتف الإماراتي"))
+            address = st.text_area(local("Delivery address and area", "العنوان والمنطقة"))
+            confirmed = st.form_submit_button(local("Review payment options", "عرض خيارات الدفع"), use_container_width=True)
+        if confirmed:
+            if not customer.strip() or not phone.strip() or not address.strip():
+                st.error(local("Please complete all delivery fields.", "يرجى تعبئة جميع بيانات التوصيل."))
+                st.session_state.checkout_ready = False
+            else:
+                st.session_state.checkout_ready = True
+                st.session_state.order_details = (customer.strip(), phone.strip(), address.strip(), emirate, cart_qty, total)
+        if st.session_state.get("checkout_ready"):
+            details = st.session_state.get("order_details")
+            if details and details[3] == emirate and details[4] == cart_qty and details[5] == total:
+                st.success(local("Order details reviewed. Payment is not yet confirmed.", "تمت مراجعة بيانات الطلب. الدفع غير مؤكد بعد."))
+                st.markdown(f"**{local('Payable amount', 'المبلغ المطلوب')}: AED {total}**")
+                # Only show a Ziina payment link if its exact amount has been configured and checked.
+                try:\n                    ziina_links = st.secrets.get("ziina_links", {})\n                except Exception:\n                    ziina_links = {}
+                link = ziina_links.get(str(total), "") if ziina_links else ""
+                if isinstance(link, str) and link.startswith("https://pay.ziina.com/"):
+                    st.link_button(local("PAY WITH ZIINA", "ادفع عبر زينة"), link, use_container_width=True)
+                    st.warning(local("Pay only if Ziina displays exactly AED " + str(total) + ". A payment link does not automatically confirm your order on this site.", "ادفع فقط إذا ظهر مبلغ " + str(total) + " درهماً في زينة. لا يؤكد رابط الدفع الطلب تلقائياً في الموقع."))
+                else:
+                    st.info(local("Ziina payments are not connected yet. The business owner must add a verified Ziina payment link for this exact total.", "الدفع عبر زينة غير متصل بعد. يجب إضافة رابط دفع موثّق لهذا المبلغ تحديداً."))
+                st.markdown(f'<a class="order" href="https://ig.me/m/houseofver_" target="_blank" rel="noopener noreferrer">{local("CONTACT US ON INSTAGRAM", "تواصل معنا عبر إنستغرام")}</a>', unsafe_allow_html=True)
+                st.caption(local("No order is placed and no personal details are sent by this form. Confirm the order with HOUSE OF VÈR on Instagram.", "لا يتم إرسال بياناتك أو تسجيل طلب تلقائياً من هذا النموذج. أكّد الطلب مع هاوس أوف ڤير عبر إنستغرام."))
+            else:
+                st.session_state.checkout_ready = False
+        st.markdown(f'<div class="fine"></div><div class="copy">{local("Need help? Contact @houseofver_ on Instagram.", "للمساعدة تواصل معنا عبر إنستغرام @houseofver_")}</div>', unsafe_allow_html=True)
+
+st.markdown('<div class="footer">HOUSE OF VÈR · THE ESSENCE OF PRESENCE</div>', unsafe_allow_html=True)
