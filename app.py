@@ -32,7 +32,7 @@ copy={
 }
 def t(k): return copy[k][1 if ar else 0]
 art=img_data('brand_art.png'); perfume=img_data('perfume.jpg')
-notes_image = (BASE / "notes.jpg").exists()
+notes_image = (BASE / "notes.jpg.png").exists()
 st.markdown('''<style>
 @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500&display=swap');
 :root{--gold:#a8782c;--ink:#463121;--cream:#fff4e6}
