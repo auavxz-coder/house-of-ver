@@ -848,7 +848,53 @@ elif nav == "tracking":
                     st.caption(local("Statuses are updated manually by HOUSE OF VÈR. Payment proof does not confirm payment.", "يتم تحديث الحالات يدوياً من قبل HOUSE OF VÈR. صورة إثبات الدفع لا تعني تأكيد وصول المبلغ."))
             except Exception:
                 st.error(local("Order tracking is temporarily unavailable. Please try again later.", "خدمة التتبع غير متاحة حالياً. يرجى المحاولة لاحقاً."))
+st.markdown("""
+<style>
+/* HOUSE OF VÈR — storefront and shopping bag editorial polish */
+.ver-editorial-hero{background:linear-gradient(125deg,#f2dec2 0%,#fff8ed 55%,#ecd4b2 100%);
+ border:1px solid #d5b78a;border-radius:13px;padding:32px 25px 25px;
+ text-align:center;margin:16px auto 25px;box-shadow:0 12px 35px rgba(80,49,22,.07)}
+.ver-eyebrow{font-family:'DM Sans',sans-serif;letter-spacing:.23em;font-size:11px;color:#9a7340}
+.ver-editorial-title{font-family:'Cormorant Garamond','Amiri',serif;font-size:clamp(35px,7vw,63px);
+ line-height:1.06;color:#694625;margin:12px 0}
+.ver-editorial-description{font-family:'Cormorant Garamond','Amiri',serif;
+ font-size:clamp(18px,2.5vw,24px);color:#826343;line-height:1.55}
+.ver-editorial-rule{height:1px;max-width:130px;background:#bc955b;margin:19px auto}
+.ver-product-card{display:flex;gap:24px;align-items:center;justify-content:center;
+ background:#fffaf2;border:1px solid #dcc5a3;border-radius:11px;
+ padding:20px;margin:12px 0 24px;box-shadow:0 8px 24px rgba(84,51,24,.05)}
+.ver-product-card img{width:175px;max-width:40%;aspect-ratio:4/5;object-fit:contain;
+ border-radius:7px;background:#f6e8d5}
+.ver-product-details{flex:1;min-width:0}
+.ver-product-title{font-family:'Cormorant Garamond','Amiri',serif;font-size:clamp(25px,4vw,36px);
+ line-height:1.15;color:#67452b}
+.ver-product-meta{font-size:12px;letter-spacing:.11em;color:#9b7546;margin:10px 0}
+.ver-product-price{font-family:'Cormorant Garamond',serif;font-size:31px;color:#956d33}
+.ver-section-kicker{text-align:center;color:#9c7845;letter-spacing:.17em;font-size:11px;margin-top:22px}
+.ver-order-summary{border:1px solid #ddc6a3;background:#fff9ef;border-radius:11px;
+ padding:19px 22px;margin:18px 0;box-shadow:0 7px 24px rgba(88,60,28,.04)}
+.ver-order-summary-title{font-family:'Cormorant Garamond','Amiri',serif;font-size:27px;
+ color:#73502e;margin-bottom:10px}
+.ver-order-row{display:flex;justify-content:space-between;gap:15px;
+ color:#73573b;padding:9px 0;border-bottom:1px solid #ead9c1}
+.ver-order-row:last-child{border-bottom:0;font-weight:700;color:#795126;font-size:20px}
+@media(max-width:600px){
+ .ver-editorial-hero{padding:26px 16px 21px}
+ .ver-product-card{gap:14px;padding:14px;align-items:center}
+ .ver-product-card img{width:118px;max-width:42%}
+ .ver-product-price{font-size:25px}
+ .ver-order-summary{padding:16px}
+}
+</style>
+""",unsafe_allow_html=True)
 elif nav == "shop":
+    st.markdown(
+        '<div class="ver-editorial-hero">'
+        '<div class="ver-eyebrow">HOUSE OF VÈR · EAU DE PARFUM</div>'
+        '<div class="ver-editorial-title">'+html.escape(local("THE ESSENCE OF PRESENCE","جوهر الحضور"))+'</div>'
+        '<div class="ver-editorial-rule"></div>'
+        '<div class="ver-editorial-description">'+html.escape(local("A signature fragrance. A presence that lingers.","عطر مميز. حضور يترك أثره."))+'</div>'
+        '</div>',unsafe_allow_html=True)
     st.markdown(f'<div class="bottle"><img src="{perfume}" alt="VÈR perfume bottle"></div>', unsafe_allow_html=True)
     st.markdown(f'<div class="price">AED {PRICE}</div><div class="muted">{local("VÈR Eau de Parfum · 100 ml", "عطر ڤير · ١٠٠ مل")}</div>', unsafe_allow_html=True)
     qty = st.number_input(local("Quantity", "الكمية"), min_value=1, max_value=20, value=1, step=1)
@@ -996,6 +1042,7 @@ elif nav == "payment":
             st.info(local("This order is already being processed. Contact the store for assistance.", "هذا الطلب قيد المعالجة. يرجى التواصل معنا للمساعدة."))
 
 else:
+    st.markdown('<div class="ver-section-kicker">HOUSE OF VÈR · THE ESSENCE OF PRESENCE</div>',unsafe_allow_html=True)
     st.markdown(f'<div class="section-title">{local("YOUR SHOPPING BAG", "سلة التسوق")}</div>', unsafe_allow_html=True)
     if st.session_state.cart_qty == 0:
         st.markdown(f'<div style="background:#fff9ef!important;color:#60482e!important;border:1px solid #d7b98d;border-left:4px solid #a8782c;border-radius:6px;padding:18px 20px;margin:12px 0 16px;font-size:17px">{local("Your bag is empty.", "سلتك فارغة.")}</div>', unsafe_allow_html=True)
@@ -1004,16 +1051,14 @@ else:
             st.rerun()
     else:
         st.markdown(
-            '<div style="max-width:260px;margin:8px auto 22px;'
-            'border:1px solid #d6b98c;border-radius:8px;overflow:hidden;'
-            'background:#fff8ef;box-shadow:0 6px 24px rgba(100,72,45,.07)">'
-            f'<img src="{perfume}" alt="VÈR Eau de Parfum 100 ml" '
-            'style="width:100%;height:auto;display:block;object-fit:contain">'
-            '</div>', unsafe_allow_html=True)
-        st.markdown(
-            f'<div style="text-align:center;color:#8f692f;font-family:Georgia,serif;'
-            f'font-size:21px;margin-bottom:18px">{local("VÈR Eau de Parfum · 100 ml", "عطر ڤير · ١٠٠ مل")}</div>',
-            unsafe_allow_html=True)
+            '<div class="ver-product-card">'
+            '<img src="'+perfume+'" alt="VÈR Eau de Parfum 100 ml">'
+            '<div class="ver-product-details">'
+            '<div class="ver-eyebrow">'+html.escape(local("YOUR SELECTION","اختيارك"))+'</div>'
+            '<div class="ver-product-title">'+html.escape(local("VÈR Eau de Parfum","عطر ڤير"))+'</div>'
+            '<div class="ver-product-meta">100 ML · EAU DE PARFUM</div>'
+            '<div class="ver-product-price">AED '+str(PRICE)+'</div>'
+            '</div></div>',unsafe_allow_html=True)
         cart_qty = st.number_input(local("VÈR Eau de Parfum · 100 ml — Quantity", "عطر ڤير · ١٠٠ مل — الكمية"), min_value=0, max_value=20, step=1, key="cart_qty")
         if st.session_state.get("customer_token") and st.session_state.get("last_synced_cart") != cart_qty:
             try:
@@ -1053,9 +1098,13 @@ else:
         st.markdown(f'<div style="background:#fff9ef;color:#684d2e;border:1px solid #c8aa79;border-left:4px solid #a8782c;padding:14px 16px;border-radius:5px;font-size:15px;line-height:1.6">{html.escape(local(timing_en, timing_ar))}</div>', unsafe_allow_html=True)
         subtotal = PRICE * cart_qty
         total = subtotal + delivery
-        st.markdown(f"**{local('Perfume subtotal', 'قيمة العطر')}:** AED {subtotal}")
-        st.markdown(f"**{local('Delivery', 'التوصيل')}:** AED {delivery}")
-        st.markdown(f"### {local('Total', 'الإجمالي')}: AED {total}")
+        st.markdown(
+            '<div class="ver-order-summary"><div class="ver-order-summary-title">'
+            +html.escape(local("ORDER SUMMARY","ملخص الطلب"))+'</div>'
+            '<div class="ver-order-row"><span>'+html.escape(local("Perfume subtotal","قيمة العطر"))+'</span><span>AED '+str(subtotal)+'</span></div>'
+            '<div class="ver-order-row"><span>'+html.escape(local("Delivery","التوصيل"))+'</span><span>AED '+str(delivery)+'</span></div>'
+            '<div class="ver-order-row"><span>'+html.escape(local("Total","الإجمالي"))+'</span><span>AED '+str(total)+'</span></div></div>',
+            unsafe_allow_html=True)
         st.caption(local("Delivery fee is calculated for your selected area, per order.", "يتم احتساب رسوم التوصيل حسب المنطقة المختارة لكل طلب."))
         st.markdown(f"#### {local('Delivery details', 'بيانات التوصيل')}")
         with st.form("delivery_details"):
