@@ -518,7 +518,6 @@ elif nav == "account":
                 st.rerun()
             except Exception:
                 st.error(local("Could not save details.","تعذر حفظ البيانات."))
-        st.markdown('<div class="ver-account-section">'+html.escape(local("MY ORDERS","طلباتي"))+'</div><div class="ver-account-rule"></div>',unsafe_allow_html=True)
         try:
             orders=auth.my_orders(st.session_state.customer_token)
             fulfillment_labels={
@@ -545,6 +544,7 @@ elif nav == "account":
             m3.metric(local("SAVED BAG","السلة المحفوظة"),int(st.session_state.get("cart_qty",0)))
             if last_order:
                 st.caption(local("Latest order: ","آخر طلب: ")+str(last_order))
+            st.markdown('<div class="ver-account-section">'+html.escape(local("MY ORDERS","طلباتي"))+'</div><div class="ver-account-rule"></div>',unsafe_allow_html=True)
             if not orders:
                 st.caption(local("No account-linked orders yet. Guest orders are not automatically linked.", "لا توجد طلبات مرتبطة بالحساب بعد. الطلبات السابقة كضيف لا ترتبط تلقائياً."))
             for order in orders:
@@ -574,15 +574,33 @@ elif nav == "account":
                         if not details or not isinstance(details,dict):
                             st.warning(local("Details are unavailable for this order.","تفاصيل هذا الطلب غير متاحة."))
                         else:
-                            st.markdown("**"+local("VÈR Eau de Parfum · 100 ml","عطر ڤير · ١٠٠ مل")+"**")
-                            st.write(local("Quantity","الكمية")+": "+str(details.get("quantity","—")))
-                            st.write(local("Perfume subtotal","مجموع العطر")+": AED "+str(details.get("subtotal","—")))
-                            st.write(local("Delivery","التوصيل")+": AED "+str(details.get("delivery_fee","—")))
-                            st.write(local("Total","الإجمالي")+": AED "+str(details.get("total","—")))
-                            st.write(local("Emirate","الإمارة")+": "+str(details.get("emirate","—")))
-                            st.write(local("Area","المنطقة")+": "+str(details.get("area","—")))
-                            st.write(local("Payment status","حالة الدفع")+": "+payment_labels.get(details.get("payment_status"),local("Contact the store","يرجى التواصل مع المتجر")))
-                            st.write(local("Order status","حالة الطلب")+": "+fulfillment_labels.get(details.get("fulfillment_status"),local("Contact the store","يرجى التواصل مع المتجر")))
+                            def money(value):
+                                try:
+                                    return f"{float(value):,.2f}".rstrip("0").rstrip(".")
+                                except (TypeError,ValueError):
+                                    return "—"
+                            def detail_row(label,value,emphasis=False):
+                                color="#785327" if emphasis else "#66513d"
+                                weight="700" if emphasis else "400"
+                                st.markdown(
+                                    '<div style="display:flex;justify-content:space-between;gap:16px;'
+                                    'align-items:baseline;border-bottom:1px solid #ead9c3;padding:11px 3px;'
+                                    'font-family:Georgia,serif;color:'+color+';font-weight:'+weight+'">'
+                                    '<span>'+html.escape(label)+'</span><span style="text-align:right">'
+                                    +html.escape(str(value))+'</span></div>',unsafe_allow_html=True)
+                            st.markdown('<div style="font-family:Georgia,serif;font-size:21px;color:#8e692f;'
+                                'padding:12px 0 5px">'+html.escape(local("ORDER SUMMARY","ملخص الطلب"))+'</div>',unsafe_allow_html=True)
+                            detail_row(local("Product","المنتج"),local("VÈR Eau de Parfum · 100 ml","عطر ڤير · ١٠٠ مل"))
+                            detail_row(local("Quantity","الكمية"),details.get("quantity","—"))
+                            detail_row(local("Perfume subtotal","مجموع العطر"),"AED "+money(details.get("subtotal")))
+                            detail_row(local("Delivery","التوصيل"),"AED "+money(details.get("delivery_fee")))
+                            detail_row(local("Total","الإجمالي"),"AED "+money(details.get("total")),True)
+                            st.markdown('<div style="font-family:Georgia,serif;font-size:19px;color:#8e692f;'
+                                'padding:23px 0 5px">'+html.escape(local("DELIVERY & STATUS","التوصيل وحالة الطلب"))+'</div>',unsafe_allow_html=True)
+                            detail_row(local("Emirate","الإمارة"),details.get("emirate") or "—")
+                            detail_row(local("Area","المنطقة"),details.get("area") or "—")
+                            detail_row(local("Payment status","حالة الدفع"),payment_labels.get(details.get("payment_status"),local("Contact the store","يرجى التواصل مع المتجر")))
+                            detail_row(local("Order status","حالة الطلب"),fulfillment_labels.get(details.get("fulfillment_status"),local("Contact the store","يرجى التواصل مع المتجر")))
                             st.caption(local("Payment verification and order updates are handled by HOUSE OF VÈR.","التحقق من الدفع وتحديث الطلبات يتم من قبل HOUSE OF VÈR."))
                     except Exception:
                         st.warning(local("Order details are not enabled yet. The store must run the secure order-details SQL setup.","تفاصيل الطلب غير مفعّلة بعد. يجب تشغيل إعداد SQL الآمن لتفاصيل الطلبات."))
