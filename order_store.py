@@ -139,7 +139,7 @@ def lookup_order_status(order_id, email, phone):
     phone = phone.strip()
     if not re.fullmatch(r"VER-[A-F0-9]{12}", order_id):
         return None
-    if not re.fullmatch(r"[^\\s@]+@[^\\s@]+\\.[^\\s@]+", email):
+    if not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", email):
         return None
     if not re.fullmatch(r"[+0-9() -]{7,30}", phone):
         return None
