@@ -108,3 +108,18 @@ def choose_payment(order_id, method, expected_total):
     if len(saved) != 1 or int(saved[0]["total"]) != updated_total:
         raise RuntimeError("Payment method was not saved")
     return updated_total
+
+def payment_state(order_id):
+    """Read authoritative payment method state, not browser session state."""
+    import urllib.parse
+    url = str(st.secrets["SUPABASE_URL"]).strip().rstrip("/")
+    key = str(st.secrets["SUPABASE_SERVICE_ROLE_KEY"]).strip()
+    headers = {"apikey": key}
+    if not key.startswith("sb_secret_"):
+        headers["Authorization"] = "Bearer " + key
+    route = "/rest/v1/orders?select=payment_status,total&order_id=eq." + urllib.parse.quote(order_id, safe="")
+    with urllib.request.urlopen(urllib.request.Request(url+route,headers=headers),timeout=12) as response:
+        rows = json.loads(response.read().decode())
+    if len(rows) != 1:
+        raise RuntimeError("Order not found")
+    return rows[0]
