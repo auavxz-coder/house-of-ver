@@ -55,6 +55,29 @@ import html
 PRICE = 240
 DELIVERY = 30
 EMIRATES = ["Dubai", "Ras Al Khaimah", "Sharjah", "Ajman", "Abu Dhabi", "Umm Al Quwain", "Fujairah"]
+WESTERN = ["المرفأ", "الرويس", "الظنة", "السلع", "غياثي", "بدع المطاوعة", "بينونة", "مدينة زايد", "بدع زايد", "مرابع الظفرة", "ليوا"]
+ALAIN_30 = ["ناهل", "الساد"]
+ALAIN_50 = ["سويحان", "رماح", "الخزنة", "أبو سمرة", "الختم", "الظاهرة", "العراد", "بوكريه", "الوقن", "القوع"]
+OTHER_30 = ["وادي الحلو", "شوكة", "كدرا", "السيجي", "وادي اصفني", "وادي اصفي", "وادي ممدوح", "مزيرع", "مصفوت", "مكن", "صعير", "المنيعي", "الحويلات", "وادي العجيلي", "رافاق", "جيما"]
+def delivery_options(emirate):
+    if emirate == "Abu Dhabi":
+        return ["Standard area / منطقة عادية"] + ["Western Region / المنطقة الغربية — " + x for x in WESTERN] + ["Al Ain / العين — " + x for x in ALAIN_30 + ALAIN_50]
+    if emirate in ("Sharjah", "Ras Al Khaimah", "Fujairah", "Ajman", "Dubai"):
+        return ["Standard area / منطقة عادية"] + ["Special area / منطقة خاصة — " + x for x in OTHER_30]
+    return ["Standard area / منطقة عادية"]
+
+def delivery_fee(area):
+    return 50 if area.split(" — ")[-1] in WESTERN + ALAIN_50 else 30
+
+def delivery_timing(area):
+    name = area.split(" — ")[-1]
+    if name in WESTERN:
+        return ("Western Region delivery days: Sunday, Tuesday and Thursday.",
+                "توصيل المنطقة الغربية أيام الأحد والثلاثاء والخميس.")
+    if name in ALAIN_30 + ALAIN_50:
+        return ("Delivery within two days.", "التوصيل خلال يومين.")
+    return ("Delivery time will be confirmed before dispatch.", "سيتم تأكيد موعد التوصيل قبل الشحن.")
+
 
 def local(en, arabic):
     return arabic if ar else en
@@ -98,12 +121,16 @@ else:
             st.session_state.page = "shop"
             st.rerun()
         emirate = st.selectbox(local("Delivery emirate", "إمارة التوصيل"), EMIRATES)
+        area = st.selectbox(local("Delivery area", "منطقة التوصيل"), delivery_options(emirate))
+        delivery = delivery_fee(area)
+        timing_en, timing_ar = delivery_timing(area)
+        st.info(local(timing_en, timing_ar))
         subtotal = PRICE * cart_qty
-        total = subtotal + DELIVERY
+        total = subtotal + delivery
         st.markdown(f"**{local('Perfume subtotal', 'قيمة العطر')}:** AED {subtotal}")
-        st.markdown(f"**{local('Delivery', 'التوصيل')}:** AED {DELIVERY}")
+        st.markdown(f"**{local('Delivery', 'التوصيل')}:** AED {delivery}")
         st.markdown(f"### {local('Total', 'الإجمالي')}: AED {total}")
-        st.caption(local("Delivery is AED 30 to all seven listed emirates, per order.", "رسوم التوصيل ٣٠ درهماً للطلب إلى جميع الإمارات السبع."))
+        st.caption(local("Delivery fee is calculated for your selected area, per order.", "يتم احتساب رسوم التوصيل حسب المنطقة المختارة لكل طلب."))
         st.markdown(f"#### {local('Delivery details', 'بيانات التوصيل')}")
         with st.form("delivery_details"):
             customer = st.text_input(local("Full name", "الاسم الكامل"))
@@ -116,10 +143,10 @@ else:
                 st.session_state.checkout_ready = False
             else:
                 st.session_state.checkout_ready = True
-                st.session_state.order_details = (customer.strip(), phone.strip(), address.strip(), emirate, cart_qty, total)
+                st.session_state.order_details = (customer.strip(), phone.strip(), address.strip(), emirate, area, cart_qty, total)
         if st.session_state.get("checkout_ready"):
             details = st.session_state.get("order_details")
-            if details and details[3] == emirate and details[4] == cart_qty and details[5] == total:
+            if details and details[3] == emirate and details[4] == area and details[5] == cart_qty and details[6] == total:
                 st.success(local("Order details reviewed. Payment is not yet confirmed.", "تمت مراجعة بيانات الطلب. الدفع غير مؤكد بعد."))
                 st.markdown(f"**{local('Payable amount', 'المبلغ المطلوب')}: AED {total}**")
                 # Only show a Ziina payment link if its exact amount has been configured and checked.
