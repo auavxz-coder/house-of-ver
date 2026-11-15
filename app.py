@@ -58,13 +58,25 @@ EMIRATES = ["Dubai", "Ras Al Khaimah", "Sharjah", "Ajman", "Abu Dhabi", "Umm Al 
 WESTERN = ["المرفأ", "الرويس", "الظنة", "السلع", "غياثي", "بدع المطاوعة", "بينونة", "مدينة زايد", "بدع زايد", "مرابع الظفرة", "ليوا"]
 ALAIN_30 = ["ناهل", "الساد"]
 ALAIN_50 = ["سويحان", "رماح", "الخزنة", "أبو سمرة", "الختم", "الظاهرة", "العراد", "بوكريه", "الوقن", "القوع"]
-OTHER_30 = ["وادي الحلو", "شوكة", "كدرا", "السيجي", "وادي اصفني", "وادي اصفي", "وادي ممدوح", "مزيرع", "مصفوت", "مكن", "صعير", "المنيعي", "الحويلات", "وادي العجيلي", "رافاق", "جيما"]
+# Verified area grouping. Ambiguous border-region localities stay in a separate
+# regional selector rather than being incorrectly assigned to Sharjah.
+SPECIAL_BY_EMIRATE = {
+    "Sharjah": ["وادي الحلو"],
+    "Ras Al Khaimah": ["شوكة", "وادي اصفني", "وادي اصفي"],
+    "Fujairah": ["السيجي", "كدرا"],
+    "Ajman": ["مصفوت", "مزيرع"],
+    "Dubai": ["حتا", "المنيعي", "الحويلات"],
+}
+UNVERIFIED_REMOTE = ["وادي ممدوح", "مكن", "صعير", "وادي العجيلي", "رافاق", "جيما"]
+EMIRATES.append("Other remote delivery areas / مناطق بعيدة أخرى")
+
 def delivery_options(emirate):
+    standard = ["Standard area / منطقة عادية"]
     if emirate == "Abu Dhabi":
-        return ["Standard area / منطقة عادية"] + ["Western Region / المنطقة الغربية — " + x for x in WESTERN] + ["Al Ain / العين — " + x for x in ALAIN_30 + ALAIN_50]
-    if emirate in ("Sharjah", "Ras Al Khaimah", "Fujairah", "Ajman", "Dubai"):
-        return ["Standard area / منطقة عادية"] + ["Special area / منطقة خاصة — " + x for x in OTHER_30]
-    return ["Standard area / منطقة عادية"]
+        return standard + ["Western Region / المنطقة الغربية — " + x for x in WESTERN] + ["Al Ain / العين — " + x for x in ALAIN_30 + ALAIN_50]
+    if emirate == "Other remote delivery areas / مناطق بعيدة أخرى":
+        return ["Select remote area / اختر المنطقة — " + x for x in UNVERIFIED_REMOTE]
+    return standard + ["Special area / منطقة خاصة — " + x for x in SPECIAL_BY_EMIRATE.get(emirate, [])]
 
 def delivery_fee(area):
     return 50 if area.split(" — ")[-1] in WESTERN + ALAIN_50 else 30
