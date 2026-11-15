@@ -142,7 +142,7 @@ else:
         area = st.selectbox(local("Delivery area", "منطقة التوصيل"), delivery_options(emirate))
         delivery = delivery_fee(area)
         timing_en, timing_ar = delivery_timing(area)
-        st.info(local(timing_en, timing_ar))
+        st.markdown(f'<div style="background:#fff9ef;color:#684d2e;border:1px solid #c8aa79;border-left:4px solid #a8782c;padding:14px 16px;border-radius:5px;font-size:15px;line-height:1.6">{html.escape(local(timing_en, timing_ar))}</div>', unsafe_allow_html=True)
         subtotal = PRICE * cart_qty
         total = subtotal + delivery
         st.markdown(f"**{local('Perfume subtotal', 'قيمة العطر')}:** AED {subtotal}")
