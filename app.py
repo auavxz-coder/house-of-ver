@@ -1006,6 +1006,19 @@ elif nav == "payment":
     else:
         st.write(local("Order number", "رقم الطلب") + ": " + oid)
         email_notice = st.session_state.get("order_email_notice")
+        email_reasons = st.session_state.get("order_email_reasons", {})
+        if email_reasons:
+            safe_reasons = {
+                "missing_app_password": local("Gmail App Password is missing in Streamlit Secrets.", "كلمة مرور تطبيق Gmail غير موجودة في Streamlit Secrets."),
+                "authentication_rejected": local("Gmail rejected the sender login. Check the Gmail address and App Password.", "رفض Gmail تسجيل الدخول. يرجى مراجعة الإيميل وكلمة مرور التطبيق."),
+                "recipient_rejected": local("Gmail rejected a recipient address.", "رفض Gmail عنوان المستلم."),
+                "smtp_rejected": local("Gmail refused the email request.", "رفض Gmail طلب إرسال الإيميل."),
+                "network_unavailable": local("The app could not reach Gmail SMTP.", "تعذر اتصال التطبيق بخادم Gmail."),
+                "unexpected_error": local("The email integration encountered an unexpected error.", "حدث خطأ غير متوقع في نظام الإيميلات.")
+            }
+            reasons = sorted(set(email_reasons.values()))
+            st.warning(local("Email delivery diagnostics: ", "تشخيص إرسال الإيميل: ") + " / ".join(safe_reasons.get(code, local("Email service unavailable.", "خدمة الإيميل غير متاحة.")) for code in reasons))
+
         if email_notice == "sent":
             st.success(local("Order received. A confirmation-of-receipt email was sent. Payment is not yet verified.",
                              "تم استلام الطلب وإرسال إيميل باستلامه. الدفع لم يتم التحقق منه بعد."))
@@ -1164,11 +1177,13 @@ else:
                     result = send_order_received(
                         oid, customer, email, phone, instagram, address, emirate, area,
                         int(cart_qty), float(PRICE)*int(cart_qty), float(delivery), float(total))
+                    st.session_state.order_email_reasons = result.get("reasons", {})
                     st.session_state.order_email_notice = (
                         "sent" if result["customer"] and result["store"] else
                         "partial" if result["customer"] or result["store"] else "unavailable")
                 except Exception:
                     st.session_state.order_email_notice = "unavailable"
+                    st.session_state.order_email_reasons = {"setup": "unexpected_error"}
             except ValueError as exc:
                 st.error(str(exc))
             except Exception:
