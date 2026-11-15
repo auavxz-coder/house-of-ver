@@ -221,6 +221,29 @@ div[data-baseweb="popover"] button:hover,div[data-testid="stPopoverBody"] button
 div[data-baseweb="popover"] button:focus,div[data-testid="stPopoverBody"] button:focus{
 outline:1px solid #b88a40!important;box-shadow:none!important;border-color:#b88a40!important
 }
+
+.checkout-notice{background:#fff9f0!important;color:#62482d!important;border:1px solid #d3b184!important;border-left:4px solid #a8782c!important;padding:16px 18px!important;border-radius:4px!important;margin:14px 0!important;line-height:1.6!important;font-size:15px!important}
+.stApp [data-testid="stTextInput"] input,.stApp [data-testid="stTextArea"] textarea,
+.stApp [data-testid="stForm"] input,.stApp [data-testid="stForm"] textarea,
+.stApp [data-baseweb="input"] input,.stApp [data-baseweb="textarea"] textarea{
+background:#fffaf4!important;background-color:#fffaf4!important;color:#463121!important;
+-webkit-text-fill-color:#463121!important;caret-color:#463121!important;
+border-color:#c9ac83!important;box-shadow:none!important
+}
+.stApp [data-testid="stTextInput"] [data-baseweb="input"],
+.stApp [data-testid="stTextArea"] [data-baseweb="textarea"],
+.stApp [data-testid="stForm"] [data-baseweb="input"],
+.stApp [data-testid="stForm"] [data-baseweb="textarea"]{
+background:#fffaf4!important;background-color:#fffaf4!important;
+border:1px solid #c9ac83!important;box-shadow:none!important
+}
+.stApp [data-testid="stFormSubmitButton"] button,
+.stApp [data-testid="stFormSubmitButton"] button:focus,
+.stApp [data-testid="stFormSubmitButton"] button:active{
+background:#946d36!important;border:1px solid #946d36!important;outline:none!important;
+box-shadow:none!important;color:#fffaf2!important
+}
+.stApp [data-testid="stFormSubmitButton"] button p{color:#fffaf2!important}
 </style>""", unsafe_allow_html=True)
 
 if "cart_qty" not in st.session_state:
@@ -345,7 +368,7 @@ else:
         if st.session_state.get("checkout_ready"):
             details = st.session_state.get("order_details")
             if details and details[3] == emirate and details[4] == area and details[5] == cart_qty and details[6] == total:
-                st.success(local("Order details reviewed. Payment is not yet confirmed.", "تمت مراجعة بيانات الطلب. الدفع غير مؤكد بعد."))
+                st.markdown(f'<div class="checkout-notice">{html.escape(local("Order details reviewed. Payment is not yet confirmed.", "تمت مراجعة بيانات الطلب. الدفع غير مؤكد بعد."))}</div>', unsafe_allow_html=True)
                 st.markdown(f"**{local('Payable amount', 'المبلغ المطلوب')}: AED {total}**")
                 # Only show a Ziina payment link if its exact amount has been configured and checked.
                 try:
@@ -355,9 +378,9 @@ else:
                 link = ziina_links.get(str(total), "") if ziina_links else ""
                 if isinstance(link, str) and link.startswith("https://pay.ziina.com/"):
                     st.link_button(local("PAY WITH ZIINA", "ادفع عبر زينة"), link, use_container_width=True)
-                    st.warning(local("Pay only if Ziina displays exactly AED " + str(total) + ". A payment link does not automatically confirm your order on this site.", "ادفع فقط إذا ظهر مبلغ " + str(total) + " درهماً في زينة. لا يؤكد رابط الدفع الطلب تلقائياً في الموقع."))
+                    st.markdown(f'<div class="checkout-notice">{html.escape(local("Pay only if Ziina displays exactly AED " + str(total) + ". A payment link does not automatically confirm your order on this site.", "ادفع فقط إذا ظهر مبلغ " + str(total) + " درهماً في زينة. لا يؤكد رابط الدفع الطلب تلقائياً في الموقع."))}</div>', unsafe_allow_html=True)
                 else:
-                    st.info(local("Ziina payments are not connected yet. The business owner must add a verified Ziina payment link for this exact total.", "الدفع عبر زينة غير متصل بعد. يجب إضافة رابط دفع موثّق لهذا المبلغ تحديداً."))
+                    st.markdown(f'<div class="checkout-notice">{html.escape(local("Ziina payments are not connected yet. The business owner must add a verified Ziina payment link for this exact total.", "الدفع عبر زينة غير متصل بعد. يجب إضافة رابط دفع موثّق لهذا المبلغ تحديداً."))}</div>', unsafe_allow_html=True)
                 st.markdown(f'<a class="order" href="https://ig.me/m/houseofver_" target="_blank" rel="noopener noreferrer">{local("CONTACT US ON INSTAGRAM", "تواصل معنا عبر إنستغرام")}</a>', unsafe_allow_html=True)
                 st.caption(local("No order is placed and no personal details are sent by this form. Confirm the order with HOUSE OF VÈR on Instagram.", "لا يتم إرسال بياناتك أو تسجيل طلب تلقائياً من هذا النموذج. أكّد الطلب مع هاوس أوف ڤير عبر إنستغرام."))
             else:
