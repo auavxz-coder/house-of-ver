@@ -59,7 +59,6 @@ st.markdown(
     f'</div>',
     unsafe_allow_html=True
 )
-st.markdown(f'<div class="brand-shell" style="min-height:0;padding:0;border:none;background:transparent"><img src="{art}" alt="HOUSE OF VÈR" style="display:block;width:100%;height:auto;border:double 5px #b8893b"></div>', unsafe_allow_html=True)
 st.markdown(f'<div class="bottle"><img src="{perfume}" alt="VÈR perfume bottle" /></div>',unsafe_allow_html=True)
 st.markdown(f'<div class="price">AED 225</div><div class="muted">{t("size")}</div>',unsafe_allow_html=True)
 st.markdown(f'<a class="order" href="https://ig.me/m/houseofver_" target="_blank" rel="noopener noreferrer">{t("order")} ↗</a><a class="secondary" href="https://www.instagram.com/houseofver_/" target="_blank" rel="noopener noreferrer">{t("profile")}</a>',unsafe_allow_html=True)
