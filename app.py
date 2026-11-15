@@ -281,21 +281,41 @@ box-shadow:0 0 0 1000px #fffaf4 inset!important;
   .stApp .bottle{max-width:min(310px,90vw)!important}
   .stApp .footer{font-size:12px!important;letter-spacing:.05em!important}
 }
+
+.thank-preview{text-align:center;color:#89612d;font-size:12px;letter-spacing:.08em;margin:12px auto 18px}
+.thank-card{position:relative;max-width:850px;margin:10px auto 35px;padding:42px 30px 48px;background:#fff1e0;color:#936821;border:6px double #a87931;text-align:center;overflow:hidden;box-shadow:0 12px 30px #68432214}
+.thank-star{font-size:72px;line-height:1;color:#c18b35}
+.thank-brand{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(36px,6vw,66px);letter-spacing:.035em}
+.thank-tagline{font-family:'Cormorant Garamond',Georgia,serif;letter-spacing:.23em;font-size:clamp(11px,2vw,18px)}
+.thank-rule{width:90px;border-top:1px solid #aa803f;margin:25px auto}
+.thank-script{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-size:clamp(62px,10vw,112px);line-height:1.1;margin:20px 0}
+.thank-offer{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(27px,4vw,43px);line-height:1.25}
+.thank-social{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(22px,3vw,31px);font-style:italic;margin-top:40px}
+.thank-social a{color:#936821!important}
+.thank-clouds{font-family:Georgia,serif;color:#d1a76b;font-size:clamp(60px,12vw,125px);line-height:1;opacity:.6;margin-top:25px}
+@media(max-width:650px){.thank-card{padding:25px 12px 20px;border-width:4px}.thank-star{font-size:48px}.thank-social{margin-top:28px}.thank-clouds{margin-top:10px}}
 </style>""", unsafe_allow_html=True)
 
-def render_payment_thank_you():
-    """Call only after the server has verified a successful Ziina payment."""
-    image_file = BASE / "thank_you.jpeg"
-    if image_file.is_file():
-        st.image(str(image_file), use_container_width=True)
-    else:
-        st.markdown('<div class="section-title">HOUSE OF VÈR</div><div class="section-title">Thank You</div>', unsafe_allow_html=True)
-        st.markdown('<div class="copy">Get 5% off your next order with code UAE219</div>', unsafe_allow_html=True)
-    st.markdown('<a class="secondary" href="https://www.instagram.com/houseofver_/" target="_blank" rel="noopener noreferrer">@houseofver_</a>', unsafe_allow_html=True)
+def render_payment_thank_you(preview=False):
+    """Display branded confirmation; live orders require verified payment first."""
+    label = local("DESIGN PREVIEW — NOT A PAYMENT CONFIRMATION", "معاينة التصميم — ليست تأكيداً للدفع") if preview else local("PAYMENT CONFIRMED", "تم تأكيد الدفع")
+    st.markdown(f'<div class="thank-preview">{html.escape(label)}</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="thank-card">
+      <div class="thank-star">✳</div>
+      <div class="thank-brand">HOUSE OF VÈR</div>
+      <div class="thank-tagline">THE ESSENCE OF PRESENCE</div>
+      <div class="thank-rule"></div>
+      <div class="thank-script">Thank You</div>
+      <div class="thank-offer">Get 5% off your next order<br>using code: <strong>UAE219</strong></div>
+      <div class="thank-social">Follow Us on Instagram<br><a href="https://www.instagram.com/houseofver_/" target="_blank" rel="noopener noreferrer">@houseofver_</a></div>
+      <div class="thank-clouds">☁ &nbsp; ☁ &nbsp; ☁</div>
+    </div>
+    """, unsafe_allow_html=True)
+    st.caption(local("The discount code is displayed as provided; automatic discount redemption is not configured.", "يظهر رمز الخصم كما تم تقديمه، لكن تطبيق الخصم تلقائياً غير مفعّل."))
 
-# Future Ziina webhook / server-side verification must call
-# render_payment_thank_you() only for a genuinely paid order.
-# A redirect, query parameter, or button click alone is not proof of payment.
+# Never show a real payment success message from a query parameter or button click.
+# Connect Ziina server-side verification before activating the paid-order flow.
 
 if "cart_qty" not in st.session_state:
     st.session_state.cart_qty = 0
@@ -321,13 +341,16 @@ with nav_right:
         st.button(local("PERFUME", "العطر"), key="menu_perfume", use_container_width=True, on_click=go_to, args=("shop",))
         st.button(local("CART & PAYMENT", "السلة والدفع") + f" ({st.session_state.cart_qty})", key="menu_cart", use_container_width=True, on_click=go_to, args=("cart",))
         st.button(local("OUR STORY", "قصتنا"), key="menu_story", use_container_width=True, on_click=go_to, args=("story",))
+        st.button(local("THANK YOU CARD PREVIEW", "معاينة بطاقة الشكر"), key="menu_thankyou", use_container_width=True, on_click=go_to, args=("thankyou_preview",))
 if ar:
     st.markdown('<style>.stApp .st-key-lang_ar button{border-bottom:1px solid #986821!important}</style>',unsafe_allow_html=True)
 else:
     st.markdown('<style>.stApp .st-key-lang_en button{border-bottom:1px solid #986821!important}</style>',unsafe_allow_html=True)
 nav = st.session_state.page
 
-if nav == "story":
+if nav == "thankyou_preview":
+    render_payment_thank_you(preview=True)
+elif nav == "story":
     st.markdown("""<style>
     .story-wrap{max-width:800px;margin:35px auto 70px;padding:0 14px}
     .story-kicker{text-align:center;color:#a27b46;font-size:12px;letter-spacing:.24em}
