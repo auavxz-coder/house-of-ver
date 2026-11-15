@@ -65,3 +65,22 @@ def my_orders(token):
 def my_order_details(token, order_id):
     """Only the signed-in owner can retrieve order details through a scoped RPC."""
     return _request("/rest/v1/rpc/my_order_details", "POST", {"requested_order_id":order_id},token=token)
+
+def change_password(token, new_password):
+    if len(new_password)<10 or len(new_password)>128:
+        raise ValueError("Password must be between 10 and 128 characters.")
+    return _request("/auth/v1/user","PUT",{"password":new_password},token=token)
+
+def signout(token):
+    """Revoke the current Supabase session; caller must also clear local state."""
+    url,key=_settings()
+    req=urllib.request.Request(url+"/auth/v1/logout",method="POST",
+        headers={"apikey":key,"Authorization":"Bearer "+token,"Content-Type":"application/json"},
+        data=b"{}")
+    try:
+        with urllib.request.urlopen(req,timeout=12):
+            return True
+    except urllib.error.HTTPError as exc:
+        if exc.code in (401,403):
+            return False
+        raise RuntimeError("Unable to revoke the session")

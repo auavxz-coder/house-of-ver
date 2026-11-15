@@ -644,10 +644,49 @@ elif nav == "account":
         except Exception:
             st.warning(local("Order history is temporarily unavailable.","سجل الطلبات غير متاح حالياً."))
         st.markdown('<div class="ver-account-section">'+html.escape(local("ACCOUNT SETTINGS","إعدادات الحساب"))+'</div><div class="ver-account-rule"></div>',unsafe_allow_html=True)
-        if st.button(local("SIGN OUT","تسجيل الخروج"),key="customer_signout"):
+        st.markdown(
+            '<div style="background:#fff9f0;border:1px solid #dfc9a8;border-radius:10px;'
+            'padding:19px 22px;margin:12px 0 20px">'
+            '<div style="font-family:Georgia,serif;font-size:20px;color:#79552e;margin-bottom:8px">'
+            +html.escape(local("ACCOUNT SECURITY","أمان الحساب"))+'</div>'
+            '<div style="color:#846c50;font-size:14px;line-height:1.6">'
+            +html.escape(local("Update your password or securely sign out of this session.",
+                               "يمكنك تغيير كلمة المرور أو تسجيل الخروج من هذه الجلسة بأمان."))+'</div></div>',
+            unsafe_allow_html=True)
+        with st.expander(local("CHANGE PASSWORD","تغيير كلمة المرور")):
+            with st.form("change_customer_password",clear_on_submit=True):
+                new_password=st.text_input(local("New password","كلمة المرور الجديدة"),type="password",max_chars=128)
+                confirm_password=st.text_input(local("Confirm new password","تأكيد كلمة المرور"),type="password",max_chars=128)
+                change_submit=st.form_submit_button(local("UPDATE PASSWORD","تحديث كلمة المرور"),use_container_width=True)
+            if change_submit:
+                if new_password!=confirm_password:
+                    st.error(local("Passwords do not match.","كلمتا المرور غير متطابقتين."))
+                elif len(new_password)<10:
+                    st.error(local("Password must be at least 10 characters.","يجب أن تتكون كلمة المرور من ١٠ أحرف على الأقل."))
+                else:
+                    try:
+                        auth.change_password(st.session_state.customer_token,new_password)
+                        st.success(local("Password updated. Sign in again with the new password on your next visit.",
+                                         "تم تحديث كلمة المرور. استخدم كلمة المرور الجديدة عند تسجيل الدخول في المرة القادمة."))
+                    except Exception:
+                        st.error(local("Password could not be updated. Please try again or use password recovery.",
+                                       "تعذر تغيير كلمة المرور. يرجى المحاولة مجدداً أو استخدام استعادة كلمة المرور."))
+        st.caption(local("Forgot your password? Sign out and use Reset Password on the sign-in page.",
+                         "نسيت كلمة المرور؟ سجل الخروج ثم استخدم استعادة كلمة المرور من صفحة تسجيل الدخول."))
+        if st.button(local("SIGN OUT SECURELY","تسجيل الخروج بأمان"),key="customer_signout",use_container_width=True):
+            try:
+                revoked=auth.signout(st.session_state.customer_token)
+            except Exception:
+                revoked=False
             for key in ("customer_token","customer_id","customer_email","customer_profile","last_synced_cart"):
                 st.session_state.pop(key,None)
+            st.session_state.pop("guest_checkout",None)
+            if not revoked:
+                st.session_state.signout_notice=True
             st.rerun()
+        if st.session_state.pop("signout_notice",False):
+            st.warning(local("Your local session was cleared. Remote session revocation could not be confirmed.",
+                             "تم إنهاء الجلسة في الموقع، لكن تعذر تأكيد إلغاء الجلسة على الخادم."))
 
 elif nav == "tracking":
     st.markdown(f'<div class="section-title">{local("TRACK YOUR ORDER", "تتبع الطلب")}</div>',unsafe_allow_html=True)
