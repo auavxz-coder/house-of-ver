@@ -187,6 +187,18 @@ color:#986821!important;-webkit-text-fill-color:#986821!important;font-size:16px
 .stApp [data-testid="stRadio"] input[type="radio"]{accent-color:#a8782c!important}
 .stApp [data-testid="stRadio"] [data-baseweb="radio"]>div:first-child{background:transparent!important;border-color:#a8782c!important}
 .stApp [data-testid="stRadio"] [aria-checked="true"] [data-baseweb="radio"]>div:first-child{border-color:#a8782c!important}
+
+/* HOUSE OF VÈR language switch: text-only, selected option underlined */
+.stApp .st-key-language_radio [role="radiogroup"]{justify-content:center!important;gap:4px!important;align-items:center!important}
+.stApp .st-key-language_radio [data-baseweb="radio"] > div:first-child{display:none!important}
+.stApp .st-key-language_radio label{background:transparent!important;border:0!important;padding:3px 9px!important;cursor:pointer!important}
+.stApp .st-key-language_radio label p{color:#986821!important;font-family:'Cormorant Garamond','Amiri',serif!important;font-size:17px!important;letter-spacing:.03em!important;text-decoration:none!important}
+.stApp .st-key-language_radio label:has(input:checked) p,
+.stApp .st-key-language_radio label:has([aria-checked="true"]) p{
+text-decoration:underline!important;text-decoration-color:#986821!important;text-underline-offset:6px!important;text-decoration-thickness:1px!important;font-weight:600!important
+}
+.stApp .st-key-language_radio label:hover p{color:#79521e!important}
+@media(max-width:650px){.stApp .st-key-language_radio label{padding:3px 4px!important}.stApp .st-key-language_radio label p{font-size:14px!important}}
 </style>""", unsafe_allow_html=True)
 
 if "cart_qty" not in st.session_state:
