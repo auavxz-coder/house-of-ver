@@ -87,6 +87,10 @@ for order in orders:
         st.write("Delivery:",order.get("emirate"),"—",order.get("area"))
         st.write("Address:",order.get("address"))
         st.write("Quantity:",order.get("quantity"),"| Delivery fee: AED",order.get("delivery_fee"))
+        if order.get("is_gift"):
+            st.info("Gift order")
+            st.write("Gift message:",order.get("gift_message") or "No message")
+
         if order.get("payment_status") == "cod_pending":
             st.info("Cash on delivery: AED 5 surcharge is included in the order total. Contact the customer to confirm delivery.")
         proof_path = order.get("payment_proof_path")

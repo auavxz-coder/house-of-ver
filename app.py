@@ -1,7 +1,7 @@
 import base64
 from pathlib import Path
 import streamlit as st
-from order_store import save_order, upload_payment_proof, choose_payment, payment_state
+from order_store import save_order, upload_payment_proof, choose_payment, payment_state, lookup_order_status
 
 st.set_page_config(page_title='HOUSE OF VÈR | The Essence of Presence', page_icon='✦', layout='wide', initial_sidebar_state='collapsed')
 BASE=Path(__file__).parent
@@ -363,6 +363,7 @@ with nav_right:
         st.button(local("PERFUME", "العطر"), key="menu_perfume", use_container_width=True, on_click=go_to, args=("shop",))
         st.button(local("CART & PAYMENT", "السلة والدفع") + f" ({st.session_state.cart_qty})", key="menu_cart", use_container_width=True, on_click=go_to, args=("cart",))
         st.button(local("OUR STORY", "قصتنا"), key="menu_story", use_container_width=True, on_click=go_to, args=("story",))
+        st.button(local("TRACK YOUR ORDER", "تتبع الطلب"), key="menu_tracking", use_container_width=True, on_click=go_to, args=("tracking",))
 if ar:
     st.markdown('<style>.stApp .st-key-lang_ar button{border-bottom:1px solid #986821!important}</style>',unsafe_allow_html=True)
 else:
@@ -408,6 +409,34 @@ elif nav == "story":
     story_html += '</div>'
     st.markdown(story_html, unsafe_allow_html=True)
     st.markdown(f'<a class="order" href="https://ig.me/m/houseofver_" target="_blank" rel="noopener noreferrer">{local("DISCOVER VÈR ON INSTAGRAM", "اكتشف ڤير عبر إنستغرام")}</a>', unsafe_allow_html=True)
+elif nav == "tracking":
+    st.markdown(f'<div class="section-title">{local("TRACK YOUR ORDER", "تتبع الطلب")}</div>',unsafe_allow_html=True)
+    st.markdown(f'<div class="copy">{local("Check the latest status of your HOUSE OF VÈR order.", "تابع آخر تحديث لحالة طلبك من HOUSE OF VÈR.")}</div>',unsafe_allow_html=True)
+    with st.form("track_order_form"):
+        track_id=st.text_input(local("Order number", "رقم الطلب"),placeholder="VER-XXXXXXXXXXXX",max_chars=20)
+        track_email=st.text_input(local("Email used for the order", "البريد الإلكتروني المستخدم في الطلب"),max_chars=254)
+        track_phone=st.text_input(local("Phone number used for the order", "رقم الهاتف المستخدم في الطلب"),max_chars=30)
+        track_submit=st.form_submit_button(local("CHECK ORDER STATUS", "عرض حالة الطلب"),use_container_width=True)
+    if track_submit:
+        import time
+        last=st.session_state.get("last_tracking_check",0.0)
+        if time.monotonic()-last < 10:
+            st.warning(local("Please wait before trying again.", "يرجى الانتظار قليلاً قبل المحاولة مجدداً."))
+        else:
+            st.session_state.last_tracking_check=time.monotonic()
+            try:
+                found=lookup_order_status(track_id,track_email,track_phone)
+                if not found:
+                    st.warning(local("No matching order was found. Check the details or contact us on Instagram.", "لم يتم العثور على طلب مطابق. يرجى مراجعة البيانات أو التواصل معنا عبر الإنستغرام."))
+                else:
+                    fulfillment={"new":local("Received", "تم استلام الطلب"),"preparing":local("Preparing", "قيد التجهيز"),"shipped":local("Shipped", "تم الشحن"),"delivered":local("Delivered", "تم التوصيل"),"cancelled":local("Cancelled", "ملغي")}
+                    payments={"awaiting_verification":local("Awaiting payment choice", "بانتظار اختيار الدفع"),"ziina_pending":local("Awaiting Ziina verification", "بانتظار التحقق من زينة"),"cod_pending":local("Cash on delivery", "الدفع عند الاستلام"),"paid_verified":local("Payment verified", "تم التحقق من الدفع"),"instagram_pending":local("Instagram transfer pending", "بانتظار التحويل"),"failed":local("Payment not verified", "لم يتم تأكيد الدفع"),"refunded":local("Refunded", "تم الاسترجاع")}
+                    st.markdown(f'<div class="checkout-notice"><strong>{html.escape(found["order_id"])}</strong></div>',unsafe_allow_html=True)
+                    st.write(local("Order status", "حالة الطلب")+": "+fulfillment.get(found["fulfillment_status"],found["fulfillment_status"]))
+                    st.write(local("Payment status", "حالة الدفع")+": "+payments.get(found["payment_status"],found["payment_status"]))
+                    st.caption(local("Order updates are entered manually by HOUSE OF VÈR.", "يتم تحديث حالة الطلب يدوياً من قبل HOUSE OF VÈR."))
+            except Exception:
+                st.error(local("Order tracking is temporarily unavailable. Please try again later.", "خدمة التتبع غير متاحة حالياً. يرجى المحاولة لاحقاً."))
 elif nav == "shop":
     st.markdown(f'<div class="bottle"><img src="{perfume}" alt="VÈR perfume bottle"></div>', unsafe_allow_html=True)
     st.markdown(f'<div class="price">AED {PRICE}</div><div class="muted">{local("VÈR Eau de Parfum · 100 ml", "عطر ڤير · ١٠٠ مل")}</div>', unsafe_allow_html=True)
@@ -437,6 +466,16 @@ elif nav == "shop":
     st.markdown(f'<div class="fine"></div><div class="section-title">{t("about_title")}</div><div class="copy">{t("about")}</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="fine"></div><div class="section-title">{local("FRAGRANCE NOTES", "نوتات العطر")}</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="copy">{local("Top: Pink Pepper · Warm Spice", "المقدمة: فلفل وردي · توابل دافئة")}<br>{local("Heart: Elegant Florals", "القلب: نفحات زهرية أنيقة")}<br>{local("Base: Rich Woods · Leather · Amber · Musk", "القاعدة: أخشاب غنية · جلد · عنبر · مسك")}</div>', unsafe_allow_html=True)
+    st.markdown("### " + local("DISCOVER THE SCENT", "اكتشف نوتات العطر"))
+    selected_note = st.radio(local("Fragrance layers", "طبقات العطر"),
+        ["top", "heart", "base"], horizontal=True, key="scent_layer",
+        format_func=lambda x: {"top":local("TOP", "المقدمة"),"heart":local("HEART", "القلب"),"base":local("BASE", "القاعدة")}[x])
+    scent_copy = {
+        "top":local("Pink pepper and warm spice open VÈR with a lively, inviting warmth.", "يفتتح الفلفل الوردي والتوابل الدافئة عطر ڤير بإحساس حيوي ودافئ."),
+        "heart":local("Elegant floral notes create a soft, refined heart.", "تمنح النفحات الزهرية الأنيقة قلب العطر طابعاً ناعماً وراقياً."),
+        "base":local("Rich woods, leather, amber and musk leave a deep, lasting impression.", "تترك الأخشاب الغنية والجلد والعنبر والمسك أثراً عميقاً ومميزاً.")
+    }
+    st.markdown(f'<div class="checkout-notice" style="text-align:center;font-size:19px">{html.escape(scent_copy[selected_note])}</div>',unsafe_allow_html=True)
     if notes_image:
         notes_src = img_data('notes.jpg.png')
         st.markdown(f'<div style="max-width:560px;margin:20px auto"><img src="{notes_src}" alt="VÈR fragrance notes" style="display:block;width:100%;height:auto;border-radius:4px"></div>', unsafe_allow_html=True)
@@ -555,13 +594,18 @@ else:
             email = st.text_input(local("Email address", "البريد الإلكتروني"), max_chars=254)
             instagram = st.text_input(local("Instagram username (required)", "حساب إنستغرام (إجباري)"), max_chars=60)
             address = st.text_area(local("Delivery address and area", "العنوان والمنطقة"), max_chars=500)
+            gift = st.checkbox(local("THIS ORDER IS A GIFT", "هذا الطلب هدية"), key="gift_order")
+            gift_message = st.text_area(local("Gift message (optional)", "رسالة الإهداء (اختيارية)"),max_chars=300,key="gift_message") if gift else ""
+            if gift:
+                st.caption(local("Gift message is included with your order request. Special wrapping is not guaranteed; contact us to confirm availability.", "تُحفظ رسالة الإهداء مع الطلب. التغليف الخاص غير مضمون؛ يرجى التواصل معنا للتأكد من توفره."))
+
             st.caption(local("IMPORTANT: The full name on your order must match the name on your Ziina payment account. We use it to match payments manually.", "مهم: يجب أن يطابق الاسم في الطلب الاسم المسجل في حساب زينة المستخدم للدفع حتى نتمكن من مطابقة الدفعة يدوياً."))
             confirmed = st.form_submit_button(local("SUBMIT ORDER REQUEST", "إرسال الطلب"), use_container_width=True)
-        fingerprint = (customer.strip(), phone.strip(), email.strip(), instagram.strip(), address.strip(), emirate, area, cart_qty, total)
+        fingerprint = (customer.strip(), phone.strip(), email.strip(), instagram.strip(), address.strip(), emirate, area, cart_qty, total, gift, gift_message)
         if confirmed and st.session_state.get("saved_order_fingerprint") != fingerprint:
             try:
                 with st.spinner(local("Saving order...", "جارٍ تسجيل الطلب...")):
-                    oid = save_order(customer, phone, email, instagram, address, emirate, area, cart_qty, PRICE, delivery)
+                    oid = save_order(customer, phone, email, instagram, address, emirate, area, cart_qty, PRICE, delivery, gift, gift_message)
                 st.session_state.saved_order_fingerprint = fingerprint
                 st.session_state.saved_order_id = oid
             except ValueError as exc:

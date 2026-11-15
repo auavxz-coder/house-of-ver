@@ -5,7 +5,7 @@ import uuid
 import urllib.request
 import streamlit as st
 
-def save_order(name, phone, email, instagram, address, emirate, area, quantity, price, delivery):
+def save_order(name, phone, email, instagram, address, emirate, area, quantity, price, delivery, is_gift=False, gift_message=""):
     name, phone, email, instagram, address = [x.strip() for x in (name, phone, email, instagram, address)]
     if not all([name, phone, email, instagram, address]):
         raise ValueError('Complete all required fields.')
@@ -25,11 +25,17 @@ def save_order(name, phone, email, instagram, address, emirate, area, quantity, 
     if not url.startswith('https://') or not key:
         raise RuntimeError('Invalid database configuration.')
     order_id = 'VER-' + uuid.uuid4().hex[:12].upper()
+    gift_message = gift_message.strip()
+    if len(gift_message) > 300:
+        raise ValueError("Gift message must be 300 characters or less.")
     record = {'order_id': order_id, 'customer_name': name, 'phone': phone, 'email': email.lower(),
         'instagram': instagram.lstrip('@'), 'address': address, 'emirate': emirate, 'area': area,
         'quantity': quantity, 'subtotal': price*quantity, 'delivery_fee': delivery,
         'total': price*quantity+delivery, 'payment_status': 'awaiting_verification',
         'fulfillment_status': 'new'}
+    if is_gift:
+        record['is_gift'] = True
+        record['gift_message'] = gift_message
     headers = {'apikey': key, 'Content-Type': 'application/json', 'Prefer': 'return=representation'}
     if not key.startswith('sb_secret_'):
         headers['Authorization'] = 'Bearer ' + key
@@ -124,3 +130,32 @@ def payment_state(order_id):
     if len(rows) != 1:
         raise RuntimeError("Order not found")
     return rows[0]
+
+def lookup_order_status(order_id, email, phone):
+    """Only return limited status information after matching three order credentials."""
+    import urllib.parse
+    order_id = order_id.strip().upper()
+    email = email.strip().lower()
+    phone = phone.strip()
+    if not re.fullmatch(r"VER-[A-F0-9]{12}", order_id):
+        return None
+    if not re.fullmatch(r"[^\\s@]+@[^\\s@]+\\.[^\\s@]+", email):
+        return None
+    if not re.fullmatch(r"[+0-9() -]{7,30}", phone):
+        return None
+    base = str(st.secrets["SUPABASE_URL"]).strip().rstrip("/")
+    key = str(st.secrets["SUPABASE_SERVICE_ROLE_KEY"]).strip()
+    headers = {"apikey": key}
+    if not key.startswith("sb_secret_"):
+        headers["Authorization"] = "Bearer " + key
+    params = urllib.parse.urlencode({
+        "select":"order_id,fulfillment_status,payment_status",
+        "order_id":"eq."+order_id,
+        "email":"eq."+email,
+        "phone":"eq."+phone,
+        "limit":"1"
+    })
+    request = urllib.request.Request(base+"/rest/v1/orders?"+params,headers=headers)
+    with urllib.request.urlopen(request,timeout=12) as response:
+        rows=json.loads(response.read().decode())
+    return rows[0] if rows else None
