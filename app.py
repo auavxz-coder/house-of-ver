@@ -457,7 +457,14 @@ else:
             st.markdown(f"**{local('Order request received', 'تم استلام الطلب')} — {st.session_state.saved_order_id}**")
             st.markdown(f"**{local('Total', 'الإجمالي')}: AED {total}**")
             st.caption(local("Payment is NOT verified. Save your order number. No confirmation email is sent.", "لم يتم التحقق من الدفع. احتفظ برقم الطلب. لن يتم إرسال بريد تأكيد."))
-            st.link_button(local("CONTINUE TO ZIINA", "المتابعة إلى زينة"), "https://pay.ziina.com/Sulaiman97/XGrEI3duJ?source=app", use_container_width=True)
+            ziina_links = {
+                270: "https://pay.ziina.com/Sulaiman97/XGrEI3duJ?source=app",
+                290: "https://pay.ziina.com/Sulaiman97/kjDR_i_KW?source=app",
+            }
+            if total in ziina_links:
+                st.link_button(local("CONTINUE TO ZIINA", "المتابعة إلى زينة"), ziina_links[total], use_container_width=True)
+            else:
+                st.warning(local("No verified amount-specific Ziina link is configured for this total. Contact us on Instagram for payment.", "لا يوجد رابط زينة مخصص لهذا المبلغ. تواصل معنا عبر إنستغرام لإتمام الدفع."))
             st.markdown(f"#### {local('Upload Ziina payment screenshot', 'ارفع صورة إثبات الدفع من زينة')}")
             st.caption(local("After paying, return here and upload a screenshot showing the transaction. Do not include card numbers or other unnecessary financial details.", "بعد الدفع ارجع وارفع صورة توضح العملية. لا ترفع أرقام البطاقات أو أي معلومات مالية غير ضرورية."))
             with st.form("payment_proof_form"):
