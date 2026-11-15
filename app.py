@@ -531,10 +531,18 @@ elif nav == "account":
                 fulfillment=html.escape(fulfillment_labels.get(order.get("fulfillment_status"),local("Contact us for status","يرجى التواصل لمعرفة الحالة")))
                 payment=html.escape(payment_labels.get(order.get("payment_status"),local("Payment status unavailable","حالة الدفع غير متاحة")))
                 st.markdown(
-                    '<div class="ver-order-card"><div class="ver-order-top">'
-                    '<div><div class="ver-account-kicker">'+html.escape(local("ORDER NUMBER","رقم الطلب"))+'</div>'
-                    '<div class="ver-order-id">'+oid+'</div></div>'
-                    '<div class="ver-order-price">AED '+total+'</div></div>'
+                    '<div class="ver-order-card">'
+                    '<div style="display:flex;align-items:center;gap:17px;flex-wrap:wrap">'
+                    '<img src="'+perfume+'" alt="VÈR Eau de Parfum 100 ml" '
+                    'style="width:105px;height:125px;object-fit:cover;border-radius:7px;'
+                    'border:1px solid #dfc9a8;flex-shrink:0">'
+                    '<div style="flex:1;min-width:180px">'
+                    '<div class="ver-account-kicker">'+html.escape(local("ORDER NUMBER","رقم الطلب"))+'</div>'
+                    '<div class="ver-order-id">'+oid+'</div>'
+                    '<div style="font-family:Georgia,serif;color:#775736;margin-top:9px">'
+                    +html.escape(local("VÈR Eau de Parfum · 100 ml","عطر ڤير · ١٠٠ مل"))+'</div>'
+                    '<div class="ver-order-price" style="margin-top:8px">AED '+total+'</div>'
+                    '</div></div>'
                     '<div class="ver-order-meta"><span class="ver-order-pill">'+fulfillment+'</span>'
                     '<span class="ver-order-pill">'+payment+'</span></div></div>',
                     unsafe_allow_html=True)
