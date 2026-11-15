@@ -6,7 +6,7 @@ st.set_page_config(page_title='HOUSE OF VÈR | The Essence of Presence', page_ic
 BASE=Path(__file__).parent
 
 def img_data(name):
-    p=BASE/'assets'/name
+    p=BASE/name
     mime='image/jpeg' if p.suffix.lower() in ('.jpg','.jpeg') else 'image/png'
     return f'data:{mime};base64,{base64.b64encode(p.read_bytes()).decode()}'
 
