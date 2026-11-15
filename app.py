@@ -442,6 +442,25 @@ st.markdown("""
 }
 </style>
 """,unsafe_allow_html=True)
+st.markdown("""
+<style>
+/* HOUSE OF VÈR: minimal luxury homepage, scoped to the product introduction. */
+.ver-minimal-intro{text-align:center;max-width:780px;margin:5px auto 34px;padding:12px 16px 0}
+.ver-minimal-kicker{font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:.21em;color:#967446}
+.ver-minimal-heading{font-family:'Cormorant Garamond','Amiri',Georgia,serif;
+ font-weight:400;letter-spacing:.055em;font-size:clamp(37px,5.5vw,64px);
+ line-height:1.14;color:#835c30;margin:17px 0 0}
+.ver-minimal-divider{width:75px;height:1px;background:#bb9969;margin:19px auto}
+.ver-minimal-subtitle{font-family:'Cormorant Garamond','Amiri',Georgia,serif;
+ font-size:clamp(18px,2.2vw,24px);color:#81674e;line-height:1.45}
+@media(max-width:700px){
+ .ver-minimal-intro{margin:0 auto 22px;padding:8px 8px 0}
+ .ver-minimal-heading{font-size:clamp(33px,8vw,45px)}
+ .ver-minimal-kicker{font-size:10px;letter-spacing:.13em}
+}
+</style>
+""",unsafe_allow_html=True)
+
 if nav == "thankyou_preview":
     render_payment_thank_you(preview=True)
 elif nav == "story":
@@ -919,12 +938,11 @@ elif nav == "tracking":
                 st.error(local("Order tracking is temporarily unavailable. Please try again later.", "خدمة التتبع غير متاحة حالياً. يرجى المحاولة لاحقاً."))
 elif nav == "shop":
     st.markdown(
-        '<div style="text-align:center;padding:12px 0 24px">'
-        '<div class="ver-eyebrow">HOUSE OF VÈR · THE ESSENCE OF PRESENCE</div>'
-        '<div style="font-family:Georgia,serif;font-size:clamp(30px,5vw,49px);'
-        'color:#825b2d;letter-spacing:.07em;margin:10px 0">'
-        +html.escape(local("VÈR EAU DE PARFUM","عطر ڤير"))+'</div>'
-        '<div style="width:88px;height:1px;background:#b99662;margin:12px auto"></div>'
+        '<div class="ver-minimal-intro">'
+        '<div class="ver-minimal-kicker">HOUSE OF VÈR · THE ESSENCE OF PRESENCE</div>'
+        '<div class="ver-minimal-heading">'+html.escape(local("VÈR EAU DE PARFUM","عطر ڤير"))+'</div>'
+        '<div class="ver-minimal-divider"></div>'
+        '<div class="ver-minimal-subtitle">'+html.escape(local("A quiet statement of presence.","حضور يعبر عن نفسه بهدوء."))+'</div>'
         '</div>',unsafe_allow_html=True)
     photo_col, details_col = st.columns([1.05,1],gap="large",vertical_alignment="center")
     with photo_col:
@@ -963,7 +981,7 @@ elif nav == "shop":
     st.link_button(local("CONTACT US ON INSTAGRAM", "تواصل معنا عبر الإنستغرام"),
                    "https://ig.me/m/houseofver_", use_container_width=False)
     st.markdown(f'<div class="fine"></div><div class="section-title">{t("about_title")}</div><div class="copy">{t("about")}</div>', unsafe_allow_html=True)
-    st.markdown("### " + local("DISCOVER THE SCENT", "اكتشف نوتات العطر"))
+    st.markdown('<div class="fine"></div><div class="section-title">' + html.escape(local("DISCOVER THE SCENT", "اكتشف نوتات العطر")) + '</div>', unsafe_allow_html=True)
     st.caption(local("A balanced composition that unfolds in three layers.", "تركيبة متوازنة تتكشف عبر ثلاث طبقات."))
     selected_note = st.radio(local("Fragrance layers", "طبقات العطر"),
         ["top", "heart", "base"], horizontal=True, key="scent_layer",
