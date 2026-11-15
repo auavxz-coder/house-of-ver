@@ -78,36 +78,37 @@ def upload_payment_proof(order_id, file):
     return object_path
 
 def choose_payment(order_id, method, expected_total):
-    """Update payment choice once; no automatic confirmation of money received."""
-    if method not in ("ziina", "cod"):
+    """Atomically lock one payment method to one order."""
+    if method not in ("ziina", "cod", "instagram"):
         raise ValueError("Unsupported payment method")
+    import urllib.parse
     base = str(st.secrets["SUPABASE_URL"]).strip().rstrip("/")
     key = str(st.secrets["SUPABASE_SERVICE_ROLE_KEY"]).strip()
-    headers = {"apikey":key, "Content-Type":"application/json", "Prefer":"return=representation"}
+    headers = {"apikey": key, "Content-Type": "application/json", "Prefer": "return=representation"}
     if not key.startswith("sb_secret_"):
         headers["Authorization"] = "Bearer " + key
-    import urllib.parse
-    url = base + "/rest/v1/orders?order_id=eq." + urllib.parse.quote(order_id, safe="")
-    request = urllib.request.Request(url, headers=headers, method="GET")
-    with urllib.request.urlopen(request, timeout=12) as response:
+    route = "/rest/v1/orders?order_id=eq." + urllib.parse.quote(order_id, safe="")
+    with urllib.request.urlopen(urllib.request.Request(base+route, headers=headers), timeout=12) as response:
         rows = json.loads(response.read().decode())
     if len(rows) != 1:
         raise RuntimeError("Order not found")
     row = rows[0]
     original = int(row["subtotal"]) + int(row["delivery_fee"])
-    if original != expected_total and int(row["total"]) != expected_total + 5:
-        raise RuntimeError("Order total changed; please contact the store")
-    if row["payment_status"] not in ("awaiting_verification", "cod_pending"):
-        raise RuntimeError("This order is already being processed")
-    updated_total = original + (5 if method == "cod" else 0)
-    status = "cod_pending" if method == "cod" else "awaiting_verification"
-    data = json.dumps({"total":updated_total,"payment_status":status}).encode()
-    request = urllib.request.Request(url, data=data, headers=headers, method="PATCH")
+    if original != expected_total:
+        raise ValueError("Order amount mismatch")
+    if row["payment_status"] != "awaiting_verification":
+        raise ValueError("Payment method already selected for this order")
+    total = original + (5 if method == "cod" else 0)
+    status = {"ziina": "ziina_pending", "cod": "cod_pending", "instagram": "instagram_pending"}[method]
+    locked_route = route + "&payment_status=eq.awaiting_verification"
+    request = urllib.request.Request(base+locked_route,
+        data=json.dumps({"total":total, "payment_status":status}).encode(),
+        headers=headers, method="PATCH")
     with urllib.request.urlopen(request, timeout=12) as response:
-        saved = json.loads(response.read().decode())
-    if len(saved) != 1 or int(saved[0]["total"]) != updated_total:
-        raise RuntimeError("Payment method was not saved")
-    return updated_total
+        result = json.loads(response.read().decode())
+    if len(result) != 1 or int(result[0]["total"]) != total:
+        raise ValueError("Payment method has already been selected")
+    return total
 
 def payment_state(order_id):
     """Read authoritative payment method state, not browser session state."""

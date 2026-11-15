@@ -74,7 +74,7 @@ except Exception:
 
 col1,col2,col3=st.columns(3)
 col1.metric("Recent orders",len(orders))
-col2.metric("Awaiting payment",sum(o.get("payment_status") in ("awaiting_verification","ziina_pending","cod_pending") for o in orders))
+col2.metric("Awaiting payment",sum(o.get("payment_status") in ("awaiting_verification","ziina_pending","cod_pending","instagram_pending") for o in orders))
 col3.metric("To prepare",sum(o.get("fulfillment_status")=="new" for o in orders))
 st.info("Payment statuses are updated manually. Verify transactions in Ziina before marking an order paid.")
 for order in orders:
@@ -111,7 +111,7 @@ for order in orders:
         else:
             st.caption("No payment screenshot submitted yet.")
 
-        pay_values=["awaiting_verification","ziina_pending","cod_pending","paid_verified","failed","refunded"]
+        pay_values=["awaiting_verification","ziina_pending","cod_pending","instagram_pending","paid_verified","failed","refunded"]
         fulfillment=["new","preparing","shipped","delivered","cancelled"]
         with st.form("update_"+oid):
             payment=st.selectbox("Payment",pay_values,index=pay_values.index(order.get("payment_status")) if order.get("payment_status") in pay_values else 0)

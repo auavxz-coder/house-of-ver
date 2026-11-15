@@ -429,8 +429,8 @@ elif nav == "payment":
             st.error(local("Unable to load payment status. Please try again.", "تعذر تحميل حالة الدفع. حاولي مرة ثانية."))
             st.stop()
         if status == "awaiting_verification":
-            method = st.radio(local("Choose payment method", "اختاري طريقة الدفع"), ["ziina", "cod"],
-                format_func=lambda x: local("Ziina online payment", "زينة - دفع إلكتروني") if x == "ziina" else local("Cash on delivery (+ AED 5)", "الدفع عند الاستلام (+٥ دراهم)"))
+            method = st.radio(local("Choose payment method", "اختاري طريقة الدفع"), ["ziina", "cod", "instagram"],
+                format_func=lambda x: local("Ziina online payment", "زينة - دفع إلكتروني") if x == "ziina" else local("Cash on delivery (+ AED 5)", "الدفع عند الاستلام (+٥ دراهم)") if x == "cod" else local("Instagram — request bank transfer details", "الإنستغرام — طلب تفاصيل التحويل البنكي"))
             payable = base_total + (5 if method == "cod" else 0)
             st.markdown("### " + local("Total", "الإجمالي") + ": AED " + str(payable))
             st.caption(local("After confirmation, your payment method cannot be changed for this order.", "عقب التأكيد ما تقدرين تغيرين طريقة الدفع لنفس الطلب."))
@@ -444,6 +444,19 @@ elif nav == "payment":
             st.markdown("### " + local("Cash on delivery", "الدفع عند الاستلام") + " — AED " + str(saved_payment["total"]))
             render_payment_thank_you(proof_received=False, cod_received=True)
             st.write(local("Order number", "رقم الطلب") + ": " + oid)
+        elif status == "instagram_pending":
+            st.markdown("### " + local("Instagram bank transfer", "التحويل البنكي عن طريق الإنستغرام"))
+            st.markdown("**" + local("Order total", "إجمالي الطلب") + ": AED " + str(saved_payment["total"]) + "**")
+            st.info(local("Your order request is saved, but not confirmed. Contact us on Instagram to request bank transfer details. We will verify the transfer before confirming your order.", "تم تسجيل طلبج لكنه مب مؤكد. تواصلي ويانا على الإنستغرام عشان نعطيج تفاصيل الحساب للتحويل، وبنتأكد من وصول المبلغ قبل تأكيد الطلب."))
+            message = ("HOUSE OF VÈR — Bank transfer request\\n"
+                       + "Order: " + oid + "\\n"
+                       + "VÈR Eau de Parfum 100 ml — Qty: " + str(st.session_state.get("cart_qty", 1)) + "\\n"
+                       + "Total: AED " + str(saved_payment["total"]) + "\\n"
+                       + "Please send me the bank transfer details for my order.")
+            st.caption(local("Copy these order details, then paste them into the Instagram chat.", "انسخي تفاصيل الطلب والصقيها في محادثة الإنستغرام."))
+            st.code(message, language=None)
+            st.link_button(local("OPEN INSTAGRAM CHAT", "فتح محادثة الإنستغرام"), "https://ig.me/m/houseofver_", use_container_width=True)
+            st.caption(local("Instagram does not reliably support prefilled direct messages from websites. Paste the copied details into the chat.", "الإنستغرام ما يضمن تعبئة الرسالة تلقائياً من الموقع، فالصقي التفاصيل في المحادثة."))
         elif status == "ziina_pending":
             st.markdown("### " + local("Ziina payment", "الدفع عبر زينة") + " — AED " + str(saved_payment["total"]))
             if st.session_state.get("proof_uploaded_for") == oid:
