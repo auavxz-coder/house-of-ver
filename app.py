@@ -32,6 +32,7 @@ copy={
 }
 def t(k): return copy[k][1 if ar else 0]
 art=img_data('brand_art.png'); perfume=img_data('perfume.jpg')
+notes_image = (BASE / "notes.jpg").exists()
 st.markdown('''<style>
 @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@400;500&display=swap');
 :root{--gold:#a8782c;--ink:#463121;--cream:#fff4e6}
@@ -138,6 +139,10 @@ if nav == "shop":
     st.markdown(f'<div class="fine"></div><div class="section-title">{t("about_title")}</div><div class="copy">{t("about")}</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="fine"></div><div class="section-title">{local("FRAGRANCE NOTES", "نوتات العطر")}</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="copy">{local("Top: Pink Pepper · Warm Spice", "المقدمة: فلفل وردي · توابل دافئة")}<br>{local("Heart: Elegant Florals", "القلب: نفحات زهرية أنيقة")}<br>{local("Base: Rich Woods · Leather · Amber · Musk", "القاعدة: أخشاب غنية · جلد · عنبر · مسك")}</div>', unsafe_allow_html=True)
+    if notes_image:
+        notes_src = img_data('notes.jpg')
+        st.markdown(f'<div style="max-width:560px;margin:20px auto"><img src="{notes_src}" alt="VÈR fragrance notes" style="display:block;width:100%;height:auto;border-radius:4px"></div>', unsafe_allow_html=True)
+
 else:
     st.markdown(f'<div class="section-title">{local("YOUR SHOPPING BAG", "سلة التسوق")}</div>', unsafe_allow_html=True)
     if st.session_state.cart_qty == 0:
