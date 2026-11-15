@@ -73,7 +73,7 @@ UNVERIFIED_REMOTE = ["وادي ممدوح", "مكن", "صعير", "وادي ال
 EMIRATES.append("Other remote delivery areas / مناطق بعيدة أخرى")
 
 def delivery_options(emirate):
-    standard = ["Standard area / منطقة عادية"]
+    standard = ["Dubai emirate / إمارة دبي"] if emirate == "Dubai" else ["Standard area / منطقة عادية"]
     if emirate == "Abu Dhabi":
         return standard + ["Western Region / المنطقة الغربية — " + x for x in WESTERN] + ["Al Ain / العين — " + x for x in ALAIN_30 + ALAIN_50]
     if emirate == "Other remote delivery areas / مناطق بعيدة أخرى":
