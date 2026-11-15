@@ -788,6 +788,28 @@ else:
         if cart_qty == 0:
             st.session_state.page = "shop"
             st.rerun()
+        if not st.session_state.get("customer_token"):
+            st.markdown(
+                '<div style="background:#fff8ef;color:#64482f;border:1px solid #d7b98d;'
+                'border-radius:9px;padding:20px;margin:18px 0">'
+                '<div style="font-family:Georgia,serif;font-size:22px;color:#8d672f;margin-bottom:8px">'
+                +html.escape(local("HOW WOULD YOU LIKE TO CHECK OUT?","كيف تفضل إكمال الطلب؟"))+'</div>'
+                '<div style="font-size:15px;line-height:1.6">'
+                +html.escape(local("Sign in to save your details and orders, or continue without an account.", "سجّل الدخول لحفظ بياناتك وطلباتك، أو أكمل الطلب من دون حساب."))+
+                '</div></div>',unsafe_allow_html=True)
+            login_col,guest_col=st.columns(2,gap="small")
+            with login_col:
+                if st.button(local("SIGN IN / CREATE ACCOUNT","تسجيل الدخول / إنشاء حساب"),key="cart_login",use_container_width=True):
+                    st.session_state.page="account"
+                    st.rerun()
+            with guest_col:
+                if st.button(local("CONTINUE AS GUEST","المتابعة كضيف"),key="cart_guest",use_container_width=True):
+                    st.session_state.guest_checkout=True
+                    st.rerun()
+            if not st.session_state.get("guest_checkout"):
+                st.caption(local("Select an option above to continue to delivery details.", "اختر إحدى الطريقتين للمتابعة إلى بيانات التوصيل."))
+                st.stop()
+            st.caption(local("Guest checkout — your order will not be saved to a customer account.", "الطلب كضيف — لن يُحفظ الطلب في حساب عميل."))
         emirate = st.selectbox(local("Delivery emirate", "إمارة التوصيل"), EMIRATES)
         area = st.selectbox(local("Delivery area", "منطقة التوصيل"), delivery_options(emirate))
         delivery = delivery_fee(area)
