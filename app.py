@@ -140,7 +140,7 @@ if nav == "shop":
     st.markdown(f'<div class="fine"></div><div class="section-title">{local("FRAGRANCE NOTES", "نوتات العطر")}</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="copy">{local("Top: Pink Pepper · Warm Spice", "المقدمة: فلفل وردي · توابل دافئة")}<br>{local("Heart: Elegant Florals", "القلب: نفحات زهرية أنيقة")}<br>{local("Base: Rich Woods · Leather · Amber · Musk", "القاعدة: أخشاب غنية · جلد · عنبر · مسك")}</div>', unsafe_allow_html=True)
     if notes_image:
-        notes_src = img_data('notes.jpg')
+        notes_src = img_data('notes.jpg.png')
         st.markdown(f'<div style="max-width:560px;margin:20px auto"><img src="{notes_src}" alt="VÈR fragrance notes" style="display:block;width:100%;height:auto;border-radius:4px"></div>', unsafe_allow_html=True)
 
 else:
