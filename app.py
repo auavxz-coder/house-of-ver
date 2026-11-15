@@ -438,8 +438,14 @@ elif nav == "payment":
                 try:
                     choose_payment(oid, method, base_total)
                     st.rerun()
-                except Exception:
-                    st.error(local("Payment choice could not be saved or was already locked. Contact us.", "تعذر حفظ طريقة الدفع أو تم تثبيتها مسبقاً. تواصلي ويانا."))
+                except ValueError as exc:
+                    st.error(local("Payment method could not be selected: ", "تعذر اختيار طريقة الدفع: ") + str(exc))
+                except Exception as exc:
+                    import urllib.error
+                    if isinstance(exc, urllib.error.HTTPError):
+                        st.error(local("Payment setup error (HTTP ", "خطأ في حفظ الدفع (HTTP ") + str(exc.code) + "). " + local("Please contact the store.", "يرجى التواصل مع المتجر."))
+                    else:
+                        st.error(local("Could not reach the payment database. Please retry.", "تعذر الاتصال بقاعدة بيانات الدفع. حاولي مرة ثانية."))
         elif status == "cod_pending":
             st.markdown("### " + local("Cash on delivery", "الدفع عند الاستلام") + " — AED " + str(saved_payment["total"]))
             render_payment_thank_you(proof_received=False, cod_received=True)
