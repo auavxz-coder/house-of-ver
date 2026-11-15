@@ -23,8 +23,9 @@ def query(method, route, payload=None):
     key=secret("SUPABASE_SERVICE_ROLE_KEY")
     if not base.startswith("https://") or not key:
         raise RuntimeError("Database credentials not configured")
-    headers={"apikey":key,"Authorization":"Bearer "+key,
-             "Content-Type":"application/json","Prefer":"return=representation"}
+    headers={"apikey":key,"Content-Type":"application/json","Prefer":"return=representation"}
+    if not key.startswith("sb_secret_"):
+        headers["Authorization"]="Bearer "+key
     req=urllib.request.Request(base+"/rest/v1/"+route,
             data=json.dumps(payload).encode() if payload is not None else None,
             headers=headers,method=method)
