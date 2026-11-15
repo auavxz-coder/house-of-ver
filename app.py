@@ -95,7 +95,7 @@ def delivery_timing(area):
 def local(en, arabic):
     return arabic if ar else en
 
-st.markdown('<div style="text-align:center;padding:12px 8px 8px"><div style="font-family:Cormorant Garamond,serif;font-size:clamp(36px,7vw,68px);color:#986821;letter-spacing:.05em">HOUSE OF VÈR</div><div style="font-family:Cormorant Garamond,serif;letter-spacing:.16em;color:#9a722e;font-size:clamp(12px,2vw,19px)">THE ESSENCE OF PRESENCE</div></div>', unsafe_allow_html=True)
+st.markdown('<div style="text-align:center;padding:12px 8px 8px"><div style="font-family:Cormorant Garamond,serif;font-size:clamp(30px,6vw,68px);color:#986821;letter-spacing:.05em">HOUSE OF VÈR</div><div style="font-family:Cormorant Garamond,serif;letter-spacing:.16em;color:#9a722e;font-size:clamp(12px,2vw,19px)">THE ESSENCE OF PRESENCE</div></div>', unsafe_allow_html=True)
 st.markdown("""<style>
 div.stButton > button[kind="primary"]{background:#946d36;color:white;border-radius:2px;border:0;min-height:48px}
 div.stButton > button{min-height:44px}
@@ -260,6 +260,27 @@ box-shadow:0 0 0 1000px #fffaf4 inset!important;
 -webkit-text-fill-color:#463121!important;caret-color:#463121!important;
 }
 .stApp input:focus,.stApp textarea:focus{outline:1px solid #b8893b!important;box-shadow:none!important}
+
+/* Mobile-first checkout: prevent desktop selectbox rules from shrinking address fields */
+@media(max-width:700px){
+  html,body{overflow-x:hidden!important}
+  .stApp .block-container{width:100%!important;max-width:100%!important;padding:1rem 16px 3rem!important;overflow-x:hidden!important}
+  .stApp [data-testid="stSelectbox"]{width:100%!important;max-width:none!important;margin-left:0!important}
+  .stApp [data-testid="stSelectbox"] [data-baseweb="select"]{width:100%!important;max-width:none!important}
+  .stApp [data-testid="stSelectbox"] [data-baseweb="select"]>div{width:100%!important;min-width:0!important}
+  .stApp [data-testid="stSelectbox"] label p{font-size:15px!important;letter-spacing:0!important}
+  .stApp [data-testid="stForm"]{width:100%!important;min-width:0!important;padding:14px!important}
+  .stApp [data-testid="stTextInput"],.stApp [data-testid="stTextArea"],.stApp [data-testid="stNumberInput"]{width:100%!important;min-width:0!important}
+  .stApp [data-testid="stNumberInput"] input{min-width:0!important}
+  .section-title{font-size:clamp(27px,7vw,36px)!important;line-height:1.15!important;overflow-wrap:break-word!important;margin:22px 0 14px!important}
+  .copy{font-size:19px!important;line-height:1.55!important}
+  .stApp [data-testid="stMarkdownContainer"]{overflow-wrap:break-word}
+  .stApp [data-testid="stHorizontalBlock"]{gap:6px!important}
+  .stApp [data-testid="stColumn"]{min-width:0!important}
+  .stApp .checkout-notice{font-size:14px!important;padding:12px!important}
+  .stApp .bottle{max-width:min(310px,90vw)!important}
+  .stApp .footer{font-size:12px!important;letter-spacing:.05em!important}
+}
 </style>""", unsafe_allow_html=True)
 
 if "cart_qty" not in st.session_state:
