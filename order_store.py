@@ -79,7 +79,7 @@ def upload_payment_proof(order_id, file):
 
 def choose_payment(order_id, method, expected_total):
     """Atomically lock one payment method to one order."""
-    if method not in ("ziina", "cod", "instagram"):
+    if method not in ("ziina", "cod"):
         raise ValueError("Unsupported payment method")
     import urllib.parse
     base = str(st.secrets["SUPABASE_URL"]).strip().rstrip("/")
@@ -99,7 +99,7 @@ def choose_payment(order_id, method, expected_total):
     if row["payment_status"] != "awaiting_verification":
         raise ValueError("Payment method already selected for this order")
     total = original + (5 if method == "cod" else 0)
-    status = {"ziina": "ziina_pending", "cod": "cod_pending", "instagram": "instagram_pending"}[method]
+    status = {"ziina": "ziina_pending", "cod": "cod_pending"}[method]
     locked_route = route + "&payment_status=eq.awaiting_verification"
     request = urllib.request.Request(base+locked_route,
         data=json.dumps({"total":total, "payment_status":status}).encode(),
