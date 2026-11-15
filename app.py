@@ -283,6 +283,20 @@ box-shadow:0 0 0 1000px #fffaf4 inset!important;
 }
 </style>""", unsafe_allow_html=True)
 
+def render_payment_thank_you():
+    """Call only after the server has verified a successful Ziina payment."""
+    image_file = BASE / "thank_you.jpeg"
+    if image_file.is_file():
+        st.image(str(image_file), use_container_width=True)
+    else:
+        st.markdown('<div class="section-title">HOUSE OF VÈR</div><div class="section-title">Thank You</div>', unsafe_allow_html=True)
+        st.markdown('<div class="copy">Get 5% off your next order with code UAE219</div>', unsafe_allow_html=True)
+    st.markdown('<a class="secondary" href="https://www.instagram.com/houseofver_/" target="_blank" rel="noopener noreferrer">@houseofver_</a>', unsafe_allow_html=True)
+
+# Future Ziina webhook / server-side verification must call
+# render_payment_thank_you() only for a genuinely paid order.
+# A redirect, query parameter, or button click alone is not proof of payment.
+
 if "cart_qty" not in st.session_state:
     st.session_state.cart_qty = 0
 if "page" not in st.session_state:
