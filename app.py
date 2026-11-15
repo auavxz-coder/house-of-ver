@@ -449,17 +449,9 @@ else:
             if details and details[3] == emirate and details[4] == area and details[5] == cart_qty and details[6] == total:
                 st.markdown(f'<div class="checkout-notice">{html.escape(local("Order details reviewed. Payment is not yet confirmed.", "تمت مراجعة بيانات الطلب. الدفع غير مؤكد بعد."))}</div>', unsafe_allow_html=True)
                 st.markdown(f"**{local('Payable amount', 'المبلغ المطلوب')}: AED {total}**")
-                # Only show a Ziina payment link if its exact amount has been configured and checked.
-                try:
-                    ziina_links = st.secrets.get("ziina_links", {})
-                except Exception:
-                    ziina_links = {}
-                link = ziina_links.get(str(total), "") if ziina_links else ""
-                if isinstance(link, str) and link.startswith("https://pay.ziina.com/"):
-                    st.link_button(local("PAY WITH ZIINA", "ادفع عبر زينة"), link, use_container_width=True)
-                    st.markdown(f'<div class="checkout-notice">{html.escape(local("Pay only if Ziina displays exactly AED " + str(total) + ". A payment link does not automatically confirm your order on this site.", "ادفع فقط إذا ظهر مبلغ " + str(total) + " درهماً في زينة. لا يؤكد رابط الدفع الطلب تلقائياً في الموقع."))}</div>', unsafe_allow_html=True)
-                else:
-                    st.markdown(f'<div class="checkout-notice">{html.escape(local("Ziina payments are not connected yet. The business owner must add a verified Ziina payment link for this exact total.", "الدفع عبر زينة غير متصل بعد. يجب إضافة رابط دفع موثّق لهذا المبلغ تحديداً."))}</div>', unsafe_allow_html=True)
+                ziina_url = "https://pay.ziina.com/Sulaiman97?source=app"
+                st.link_button(local("CONTINUE TO ZIINA", "المتابعة إلى زينة"), ziina_url, use_container_width=True)
+                st.markdown(f'<div class="checkout-notice">{html.escape(local("Total: AED " + str(total) + ". Verify the recipient and exact amount on Ziina before paying. Do not pay if either differs. Payment does not automatically confirm your order here.", "الإجمالي: " + str(total) + " درهماً. تحقق من المستلم والمبلغ في زينة قبل الدفع. لا تدفع إذا اختلف أي منهما. الدفع لا يؤكد الطلب تلقائياً هنا."))}</div>', unsafe_allow_html=True)
                 st.markdown(f'<a class="order" href="https://ig.me/m/houseofver_" target="_blank" rel="noopener noreferrer">{local("CONTACT US ON INSTAGRAM", "تواصل معنا عبر إنستغرام")}</a>', unsafe_allow_html=True)
                 st.caption(local("No order is placed and no personal details are sent by this form. Confirm the order with HOUSE OF VÈR on Instagram.", "لا يتم إرسال بياناتك أو تسجيل طلب تلقائياً من هذا النموذج. أكّد الطلب مع هاوس أوف ڤير عبر إنستغرام."))
             else:
