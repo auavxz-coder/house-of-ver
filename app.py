@@ -413,6 +413,35 @@ st.markdown("""
 </style>
 """,unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+.ver-shop-photo{max-width:490px;margin:0 auto;background:#f2e5d5;border-radius:8px;
+ overflow:hidden;box-shadow:0 14px 36px rgba(75,49,28,.09)}
+.ver-shop-photo img{width:100%;height:auto;display:block;object-fit:contain}
+.ver-shop-details{padding:15px 0 24px}
+.ver-shop-name{font-family:Georgia,serif;color:#78502b;font-size:clamp(49px,7vw,83px);
+ letter-spacing:.09em;line-height:1.15;margin:12px 0}
+.ver-shop-description{font-family:Georgia,serif;font-size:clamp(18px,2.2vw,23px);
+ color:#755b45;line-height:1.65;max-width:430px}
+.ver-shop-size{font-size:12px;letter-spacing:.16em;color:#987346;margin-top:26px}
+.ver-shop-price{font-family:Georgia,serif;color:#8b632e;font-size:36px;margin-top:15px}
+.ver-instagram-line{margin:45px 0 12px;border-top:1px solid #dcc5a3;
+ padding:22px 0 0;text-align:center;color:#82684b;font-family:Georgia,serif;font-size:16px}
+[data-testid="stLinkButton"] a[href*="ig.me/m/houseofver_"]{
+ background:transparent!important;color:#835e31!important;
+ border:1px solid #cdb08a!important;border-radius:5px!important;
+ font-family:Georgia,serif!important;letter-spacing:.08em!important;
+ min-height:45px!important;box-shadow:none!important}
+[data-testid="stLinkButton"] a[href*="ig.me/m/houseofver_"]:hover{
+ background:#f3e4cf!important;color:#694724!important}
+@media(max-width:700px){
+ .ver-shop-details{padding:6px 0 16px}
+ .ver-shop-name{font-size:48px}
+ .ver-shop-photo{max-width:420px}
+ .ver-instagram-line{margin-top:30px}
+}
+</style>
+""",unsafe_allow_html=True)
 if nav == "thankyou_preview":
     render_payment_thank_you(preview=True)
 elif nav == "story":
@@ -890,42 +919,49 @@ elif nav == "tracking":
                 st.error(local("Order tracking is temporarily unavailable. Please try again later.", "خدمة التتبع غير متاحة حالياً. يرجى المحاولة لاحقاً."))
 elif nav == "shop":
     st.markdown(
-        '<div class="ver-editorial-hero">'
-        '<div class="ver-eyebrow">HOUSE OF VÈR · EAU DE PARFUM</div>'
-        '<div class="ver-editorial-title">'+html.escape(local("THE ESSENCE OF PRESENCE","جوهر الحضور"))+'</div>'
-        '<div class="ver-editorial-rule"></div>'
-        '<div class="ver-editorial-description">'+html.escape(local("A signature fragrance. A presence that lingers.","عطر مميز. حضور يترك أثره."))+'</div>'
+        '<div style="text-align:center;padding:12px 0 24px">'
+        '<div class="ver-eyebrow">HOUSE OF VÈR · THE ESSENCE OF PRESENCE</div>'
+        '<div style="font-family:Georgia,serif;font-size:clamp(30px,5vw,49px);'
+        'color:#825b2d;letter-spacing:.07em;margin:10px 0">'
+        +html.escape(local("VÈR EAU DE PARFUM","عطر ڤير"))+'</div>'
+        '<div style="width:88px;height:1px;background:#b99662;margin:12px auto"></div>'
         '</div>',unsafe_allow_html=True)
-    st.markdown(f'<div class="bottle"><img src="{perfume}" alt="VÈR perfume bottle"></div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="price">AED {PRICE}</div><div class="muted">{local("VÈR Eau de Parfum · 100 ml", "عطر ڤير · ١٠٠ مل")}</div>', unsafe_allow_html=True)
-    qty = st.number_input(local("Quantity", "الكمية"), min_value=1, max_value=20, value=1, step=1)
-    if st.button(local("ADD TO CART", "أضف إلى السلة"), type="primary", use_container_width=True):
-        st.session_state.cart_qty = min(20, st.session_state.cart_qty + int(qty))
-        if st.session_state.get("customer_token"):
-            try:
-                auth.save_profile(st.session_state.customer_token,st.session_state.customer_id,cart_qty=st.session_state.cart_qty)
-            except Exception:
-                st.warning(local("Cart could not sync to your account.", "تعذرت مزامنة السلة مع الحساب."))
-        st.session_state.page = "cart"
-        st.rerun()
+    photo_col, details_col = st.columns([1.05,1],gap="large",vertical_alignment="center")
+    with photo_col:
+        st.markdown(
+            '<div class="ver-shop-photo"><img src="'+perfume+
+            '" alt="VÈR Eau de Parfum perfume bottle"></div>',
+            unsafe_allow_html=True)
+    with details_col:
+        st.markdown(
+            '<div class="ver-shop-details">'
+            '<div class="ver-eyebrow">'+html.escape(local("A SIGNATURE SCENT","عطر بتوقيع خاص"))+'</div>'
+            '<div class="ver-shop-name">VÈR</div>'
+            '<div class="ver-shop-description">'+html.escape(local(
+                "A fragrance made to be remembered. A quiet statement of presence.",
+                "عطر يبقى في الذاكرة، وحضور يعبر عن نفسه بهدوء."))+'</div>'
+            '<div class="ver-shop-size">EAU DE PARFUM · 100 ML</div>'
+            '<div class="ver-shop-price">AED '+str(PRICE)+'</div></div>',
+            unsafe_allow_html=True)
+        qty = st.number_input(local("Quantity", "الكمية"), min_value=1, max_value=20, value=1, step=1)
+        if st.button(local("ADD TO BAG", "أضف إلى السلة"), type="primary", use_container_width=True):
+            st.session_state.cart_qty = min(20, st.session_state.cart_qty + int(qty))
+            if st.session_state.get("customer_token"):
+                try:
+                    auth.save_profile(st.session_state.customer_token,st.session_state.customer_id,cart_qty=st.session_state.cart_qty)
+                except Exception:
+                    st.warning(local("Cart could not sync to your account.", "تعذرت مزامنة السلة مع الحساب."))
+            st.session_state.page = "cart"
+            st.rerun()
+        st.caption(local("Delivery throughout the UAE · Fees calculated at checkout",
+                         "التوصيل داخل الإمارات · تُحسب الرسوم عند إتمام الطلب"))
     st.markdown(
-        '<div style="background:#fff8ef;color:#65482c;border:1px solid #d6b98c;'
-        'border-left:3px solid #a67b3c;border-radius:5px;padding:17px 18px;'
-        'line-height:1.65;font-size:16px;margin:16px 0">'
-        + html.escape(local("Prefer to order via Instagram and pay by bank transfer? Contact us on Instagram to arrange your order and receive transfer details.", "للطلب عبر الإنستغرام والدفع بتحويل بنكي، يرجى التواصل معنا لترتيب الطلب والحصول على تفاصيل التحويل."))
-        + '</div>', unsafe_allow_html=True)
-    st.markdown("""<style>
-    [data-testid="stLinkButton"] a[href*="ig.me/m/houseofver_"] {
-      background:#946d36!important;color:#fff8ef!important;
-      border:1px solid #946d36!important;border-radius:5px!important;
-      font-family:Georgia,serif!important;letter-spacing:.025em!important;
-      min-height:48px!important;box-shadow:none!important;
-    }
-    [data-testid="stLinkButton"] a[href*="ig.me/m/houseofver_"]:hover {
-      background:#7d592b!important;color:#ffffff!important;
-    }
-    </style>""", unsafe_allow_html=True)
-    st.link_button(local("ORDER VIA INSTAGRAM — BANK TRANSFER", "اطلبي عبر الإنستغرام — تحويل بنكي"), "https://ig.me/m/houseofver_", use_container_width=True)
+        '<div class="ver-instagram-line"><span>'
+        +html.escape(local("Prefer to order by Instagram and arrange a bank transfer?",
+                            "تفضل الطلب عبر الإنستغرام وترتيب التحويل البنكي؟"))+
+        '</span></div>',unsafe_allow_html=True)
+    st.link_button(local("CONTACT US ON INSTAGRAM", "تواصل معنا عبر الإنستغرام"),
+                   "https://ig.me/m/houseofver_", use_container_width=False)
     st.markdown(f'<div class="fine"></div><div class="section-title">{t("about_title")}</div><div class="copy">{t("about")}</div>', unsafe_allow_html=True)
     st.markdown("### " + local("DISCOVER THE SCENT", "اكتشف نوتات العطر"))
     st.caption(local("A balanced composition that unfolds in three layers.", "تركيبة متوازنة تتكشف عبر ثلاث طبقات."))
