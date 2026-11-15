@@ -497,8 +497,44 @@ elif nav == "account":
             '<div class="ver-account-sub">'+html.escape(st.session_state.get("customer_email",""))+'</div></div>',
             unsafe_allow_html=True)
         st.markdown('<div class="ver-account-section">'+html.escape(local("PERSONAL DETAILS","البيانات الشخصية"))+'</div><div class="ver-account-rule"></div>',unsafe_allow_html=True)
-        st.caption(local("Keep your delivery details up to date for a smoother checkout.", "احتفظ ببيانات التوصيل محدثة لتسهيل الطلبات القادمة."))
-        with st.container(border=True):
+        st.markdown("""
+        <style>
+        .ver-profile-card{border:1px solid #dec7a6;border-radius:12px;
+          background:linear-gradient(135deg,#fffaf2,#f7ead8);padding:26px 29px;
+          box-shadow:0 10px 26px rgba(92,62,29,.055);margin:14px 0 20px}
+        .ver-profile-top{display:flex;align-items:center;gap:18px;
+          padding-bottom:22px;border-bottom:1px solid #e6d2b5}
+        .ver-profile-monogram{width:65px;height:65px;border-radius:50%;
+          background:#a27a42;color:#fff9f0;display:flex;align-items:center;
+          justify-content:center;font-family:Georgia,serif;font-size:30px;flex-shrink:0}
+        .ver-profile-name{font-family:Georgia,serif;font-size:clamp(21px,3vw,29px);
+          color:#634327;overflow-wrap:anywhere}
+        .ver-profile-caption{font-size:12px;letter-spacing:.14em;color:#a17b46;margin-bottom:6px}
+        .ver-profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px 32px;padding-top:24px}
+        .ver-profile-value{font-family:Georgia,serif;font-size:17px;color:#65472f;
+          line-height:1.55;overflow-wrap:anywhere;white-space:pre-wrap}
+        @media(max-width:650px){.ver-profile-card{padding:20px 17px}
+          .ver-profile-grid{grid-template-columns:1fr;gap:18px}
+          .ver-profile-top{gap:13px}.ver-profile-monogram{width:52px;height:52px;font-size:25px}}
+        </style>
+        """,unsafe_allow_html=True)
+        def profile_item(label,value):
+            return ('<div><div class="ver-profile-caption">'+html.escape(label)+'</div>'
+                    '<div class="ver-profile-value">'+html.escape(str(value or "—"))+'</div></div>')
+        st.markdown(
+            '<div class="ver-profile-card"><div class="ver-profile-top">'
+            '<div class="ver-profile-monogram">'+html.escape((profile.get("full_name") or "V").strip()[:1].upper())+'</div>'
+            '<div><div class="ver-profile-caption">'+html.escape(local("YOUR PROFILE","ملفك الشخصي"))+'</div>'
+            '<div class="ver-profile-name">'+html.escape(profile.get("full_name") or local("HOUSE OF VÈR MEMBER","عميل HOUSE OF VÈR"))+'</div></div></div>'
+            '<div class="ver-profile-grid">'
+            +profile_item(local("EMAIL ADDRESS","البريد الإلكتروني"),st.session_state.get("customer_email",""))
+            +profile_item(local("PHONE NUMBER","رقم الهاتف"),profile.get("phone"))
+            +profile_item(local("INSTAGRAM","الإنستغرام"),profile.get("instagram"))
+            +profile_item(local("DELIVERY ADDRESS","عنوان التوصيل"),profile.get("address"))
+            +'</div></div>',unsafe_allow_html=True)
+        save=False
+        with st.expander(local("EDIT PERSONAL DETAILS","تعديل البيانات الشخصية")):
+            st.caption(local("Update your saved details for your next order.","حدّث بياناتك المحفوظة للطلبات القادمة."))
             with st.form("customer_profile_form"):
                 c1,c2=st.columns(2,gap="medium")
                 with c1:
