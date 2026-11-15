@@ -292,8 +292,14 @@ box-shadow:0 0 0 1000px #fffaf4 inset!important;
 .thank-offer{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(27px,4vw,43px);line-height:1.25}
 .thank-social{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(22px,3vw,31px);font-style:italic;margin-top:40px}
 .thank-social a{color:#936821!important}
-.thank-clouds{font-family:Georgia,serif;color:#d1a76b;font-size:clamp(60px,12vw,125px);line-height:1;opacity:.6;margin-top:25px}
-@media(max-width:650px){.thank-card{padding:25px 12px 20px;border-width:4px}.thank-star{font-size:48px}.thank-social{margin-top:28px}.thank-clouds{margin-top:10px}}
+.thank-clouds{position:relative;height:115px;margin:24px -30px -48px;overflow:hidden;pointer-events:none;background:linear-gradient(0deg,#d8a85c30,transparent)}
+.thank-clouds .cloud{position:absolute;bottom:-65px;height:115px;border:1px solid #d7a557;border-radius:50%;background:radial-gradient(ellipse at 45% 30%,#fffaf1 8%,#f5dbaf 65%,#d2a057 100%);box-shadow:0 -6px 0 #e9c99555,18px -12px 0 #f2d8a688,-15px -4px 0 #dbaf6a55}
+.thank-clouds .cloud-one{width:46%;left:-5%;transform:rotate(-9deg)}
+.thank-clouds .cloud-two{width:48%;left:29%;bottom:-48px}
+.thank-clouds .cloud-three{width:47%;right:-7%;transform:rotate(10deg)}
+.thank-card:before,.thank-card:after{content:"";position:absolute;width:145px;height:75px;top:90px;border-radius:55%;border:1px solid #e4bb7b;background:radial-gradient(ellipse,#fff7e7 15%,#edcf9d 75%,#d9ad6a);opacity:.65;pointer-events:none}
+.thank-card:before{left:-70px}.thank-card:after{right:-70px}
+@media(max-width:650px){.thank-card{padding:25px 12px 20px;border-width:4px}.thank-star{font-size:48px}.thank-social{margin-top:28px}.thank-clouds{height:70px;margin:10px -12px -20px}.thank-clouds .cloud{height:75px;bottom:-48px}}
 </style>""", unsafe_allow_html=True)
 
 def render_payment_thank_you(preview=False):
@@ -309,7 +315,7 @@ def render_payment_thank_you(preview=False):
       <div class="thank-script">Thank You</div>
       <div class="thank-offer">Get 5% off your next order<br>using code: <strong>UAE219</strong></div>
       <div class="thank-social">Follow Us on Instagram<br><a href="https://www.instagram.com/houseofver_/" target="_blank" rel="noopener noreferrer">@houseofver_</a></div>
-      <div class="thank-clouds">☁ &nbsp; ☁ &nbsp; ☁</div>
+      <div class="thank-clouds" aria-hidden="true"><span class="cloud cloud-one"></span><span class="cloud cloud-two"></span><span class="cloud cloud-three"></span></div>
     </div>
     """, unsafe_allow_html=True)
     st.caption(local("The discount code is displayed as provided; automatic discount redemption is not configured.", "يظهر رمز الخصم كما تم تقديمه، لكن تطبيق الخصم تلقائياً غير مفعّل."))
@@ -341,7 +347,6 @@ with nav_right:
         st.button(local("PERFUME", "العطر"), key="menu_perfume", use_container_width=True, on_click=go_to, args=("shop",))
         st.button(local("CART & PAYMENT", "السلة والدفع") + f" ({st.session_state.cart_qty})", key="menu_cart", use_container_width=True, on_click=go_to, args=("cart",))
         st.button(local("OUR STORY", "قصتنا"), key="menu_story", use_container_width=True, on_click=go_to, args=("story",))
-        st.button(local("THANK YOU CARD PREVIEW", "معاينة بطاقة الشكر"), key="menu_thankyou", use_container_width=True, on_click=go_to, args=("thankyou_preview",))
 if ar:
     st.markdown('<style>.stApp .st-key-lang_ar button{border-bottom:1px solid #986821!important}</style>',unsafe_allow_html=True)
 else:
