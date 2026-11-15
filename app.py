@@ -244,6 +244,22 @@ background:#946d36!important;border:1px solid #946d36!important;outline:none!imp
 box-shadow:none!important;color:#fffaf2!important
 }
 .stApp [data-testid="stFormSubmitButton"] button p{color:#fffaf2!important}
+
+/* Native inputs and browser autofill: keep ivory even when browser is in dark mode */
+.stApp input,.stApp textarea,.stApp [data-baseweb="input"],.stApp [data-baseweb="textarea"],
+.stApp [data-testid="stTextInput"] div[data-baseweb="base-input"],
+.stApp [data-testid="stTextArea"] div[data-baseweb="textarea"]{
+background-color:#fffaf4!important;background:#fffaf4!important;color:#463121!important;
+-webkit-text-fill-color:#463121!important;box-shadow:none!important;
+}
+.stApp input:-webkit-autofill,.stApp input:-webkit-autofill:hover,
+.stApp input:-webkit-autofill:focus,.stApp textarea:-webkit-autofill,
+.stApp textarea:-webkit-autofill:focus{
+-webkit-box-shadow:0 0 0 1000px #fffaf4 inset!important;
+box-shadow:0 0 0 1000px #fffaf4 inset!important;
+-webkit-text-fill-color:#463121!important;caret-color:#463121!important;
+}
+.stApp input:focus,.stApp textarea:focus{outline:1px solid #b8893b!important;box-shadow:none!important}
 </style>""", unsafe_allow_html=True)
 
 if "cart_qty" not in st.session_state:
