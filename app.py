@@ -963,7 +963,7 @@ elif nav == "shop":
     st.link_button(local("CONTACT US ON INSTAGRAM", "تواصل معنا عبر الإنستغرام"),
                    "https://ig.me/m/houseofver_", use_container_width=False)
     st.markdown(f'<div class="fine"></div><div class="section-title">{t("about_title")}</div><div class="copy">{t("about")}</div>', unsafe_allow_html=True)
-    st.markdown("### " + local("DISCOVER THE SCENT", "اكتشف نوتات العطر"))
+    st.markdown('<div class="fine"></div><div class="section-title">' + html.escape(local("DISCOVER THE SCENT", "اكتشف نوتات العطر")) + '</div>', unsafe_allow_html=True)
     st.caption(local("A balanced composition that unfolds in three layers.", "تركيبة متوازنة تتكشف عبر ثلاث طبقات."))
     selected_note = st.radio(local("Fragrance layers", "طبقات العطر"),
         ["top", "heart", "base"], horizontal=True, key="scent_layer",
