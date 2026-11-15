@@ -373,6 +373,46 @@ else:
     st.markdown('<style>.stApp .st-key-lang_en button{border-bottom:1px solid #986821!important}</style>',unsafe_allow_html=True)
 nav = "thankyou_preview" if st.query_params.get("preview") == "thankyou" else st.session_state.page
 
+st.markdown("""
+<style>
+/* HOUSE OF VÈR — storefront and shopping bag editorial polish */
+.ver-editorial-hero{background:linear-gradient(125deg,#f2dec2 0%,#fff8ed 55%,#ecd4b2 100%);
+ border:1px solid #d5b78a;border-radius:13px;padding:32px 25px 25px;
+ text-align:center;margin:16px auto 25px;box-shadow:0 12px 35px rgba(80,49,22,.07)}
+.ver-eyebrow{font-family:'DM Sans',sans-serif;letter-spacing:.23em;font-size:11px;color:#9a7340}
+.ver-editorial-title{font-family:'Cormorant Garamond','Amiri',serif;font-size:clamp(35px,7vw,63px);
+ line-height:1.06;color:#694625;margin:12px 0}
+.ver-editorial-description{font-family:'Cormorant Garamond','Amiri',serif;
+ font-size:clamp(18px,2.5vw,24px);color:#826343;line-height:1.55}
+.ver-editorial-rule{height:1px;max-width:130px;background:#bc955b;margin:19px auto}
+.ver-product-card{display:flex;gap:24px;align-items:center;justify-content:center;
+ background:#fffaf2;border:1px solid #dcc5a3;border-radius:11px;
+ padding:20px;margin:12px 0 24px;box-shadow:0 8px 24px rgba(84,51,24,.05)}
+.ver-product-card img{width:175px;max-width:40%;aspect-ratio:4/5;object-fit:contain;
+ border-radius:7px;background:#f6e8d5}
+.ver-product-details{flex:1;min-width:0}
+.ver-product-title{font-family:'Cormorant Garamond','Amiri',serif;font-size:clamp(25px,4vw,36px);
+ line-height:1.15;color:#67452b}
+.ver-product-meta{font-size:12px;letter-spacing:.11em;color:#9b7546;margin:10px 0}
+.ver-product-price{font-family:'Cormorant Garamond',serif;font-size:31px;color:#956d33}
+.ver-section-kicker{text-align:center;color:#9c7845;letter-spacing:.17em;font-size:11px;margin-top:22px}
+.ver-order-summary{border:1px solid #ddc6a3;background:#fff9ef;border-radius:11px;
+ padding:19px 22px;margin:18px 0;box-shadow:0 7px 24px rgba(88,60,28,.04)}
+.ver-order-summary-title{font-family:'Cormorant Garamond','Amiri',serif;font-size:27px;
+ color:#73502e;margin-bottom:10px}
+.ver-order-row{display:flex;justify-content:space-between;gap:15px;
+ color:#73573b;padding:9px 0;border-bottom:1px solid #ead9c1}
+.ver-order-row:last-child{border-bottom:0;font-weight:700;color:#795126;font-size:20px}
+@media(max-width:600px){
+ .ver-editorial-hero{padding:26px 16px 21px}
+ .ver-product-card{gap:14px;padding:14px;align-items:center}
+ .ver-product-card img{width:118px;max-width:42%}
+ .ver-product-price{font-size:25px}
+ .ver-order-summary{padding:16px}
+}
+</style>
+""",unsafe_allow_html=True)
+
 if nav == "thankyou_preview":
     render_payment_thank_you(preview=True)
 elif nav == "story":
@@ -848,45 +888,6 @@ elif nav == "tracking":
                     st.caption(local("Statuses are updated manually by HOUSE OF VÈR. Payment proof does not confirm payment.", "يتم تحديث الحالات يدوياً من قبل HOUSE OF VÈR. صورة إثبات الدفع لا تعني تأكيد وصول المبلغ."))
             except Exception:
                 st.error(local("Order tracking is temporarily unavailable. Please try again later.", "خدمة التتبع غير متاحة حالياً. يرجى المحاولة لاحقاً."))
-st.markdown("""
-<style>
-/* HOUSE OF VÈR — storefront and shopping bag editorial polish */
-.ver-editorial-hero{background:linear-gradient(125deg,#f2dec2 0%,#fff8ed 55%,#ecd4b2 100%);
- border:1px solid #d5b78a;border-radius:13px;padding:32px 25px 25px;
- text-align:center;margin:16px auto 25px;box-shadow:0 12px 35px rgba(80,49,22,.07)}
-.ver-eyebrow{font-family:'DM Sans',sans-serif;letter-spacing:.23em;font-size:11px;color:#9a7340}
-.ver-editorial-title{font-family:'Cormorant Garamond','Amiri',serif;font-size:clamp(35px,7vw,63px);
- line-height:1.06;color:#694625;margin:12px 0}
-.ver-editorial-description{font-family:'Cormorant Garamond','Amiri',serif;
- font-size:clamp(18px,2.5vw,24px);color:#826343;line-height:1.55}
-.ver-editorial-rule{height:1px;max-width:130px;background:#bc955b;margin:19px auto}
-.ver-product-card{display:flex;gap:24px;align-items:center;justify-content:center;
- background:#fffaf2;border:1px solid #dcc5a3;border-radius:11px;
- padding:20px;margin:12px 0 24px;box-shadow:0 8px 24px rgba(84,51,24,.05)}
-.ver-product-card img{width:175px;max-width:40%;aspect-ratio:4/5;object-fit:contain;
- border-radius:7px;background:#f6e8d5}
-.ver-product-details{flex:1;min-width:0}
-.ver-product-title{font-family:'Cormorant Garamond','Amiri',serif;font-size:clamp(25px,4vw,36px);
- line-height:1.15;color:#67452b}
-.ver-product-meta{font-size:12px;letter-spacing:.11em;color:#9b7546;margin:10px 0}
-.ver-product-price{font-family:'Cormorant Garamond',serif;font-size:31px;color:#956d33}
-.ver-section-kicker{text-align:center;color:#9c7845;letter-spacing:.17em;font-size:11px;margin-top:22px}
-.ver-order-summary{border:1px solid #ddc6a3;background:#fff9ef;border-radius:11px;
- padding:19px 22px;margin:18px 0;box-shadow:0 7px 24px rgba(88,60,28,.04)}
-.ver-order-summary-title{font-family:'Cormorant Garamond','Amiri',serif;font-size:27px;
- color:#73502e;margin-bottom:10px}
-.ver-order-row{display:flex;justify-content:space-between;gap:15px;
- color:#73573b;padding:9px 0;border-bottom:1px solid #ead9c1}
-.ver-order-row:last-child{border-bottom:0;font-weight:700;color:#795126;font-size:20px}
-@media(max-width:600px){
- .ver-editorial-hero{padding:26px 16px 21px}
- .ver-product-card{gap:14px;padding:14px;align-items:center}
- .ver-product-card img{width:118px;max-width:42%}
- .ver-product-price{font-size:25px}
- .ver-order-summary{padding:16px}
-}
-</style>
-""",unsafe_allow_html=True)
 elif nav == "shop":
     st.markdown(
         '<div class="ver-editorial-hero">'
