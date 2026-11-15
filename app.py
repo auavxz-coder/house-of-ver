@@ -1,6 +1,7 @@
 import base64
 from pathlib import Path
 import streamlit as st
+from order_store import save_order
 
 st.set_page_config(page_title='HOUSE OF VÈR | The Essence of Presence', page_icon='✦', layout='wide', initial_sidebar_state='collapsed')
 BASE=Path(__file__).parent
@@ -433,29 +434,31 @@ else:
         st.caption(local("Delivery fee is calculated for your selected area, per order.", "يتم احتساب رسوم التوصيل حسب المنطقة المختارة لكل طلب."))
         st.markdown(f"#### {local('Delivery details', 'بيانات التوصيل')}")
         with st.form("delivery_details"):
-            customer = st.text_input(local("Full name", "الاسم الكامل"))
-            phone = st.text_input(local("UAE mobile number", "رقم الهاتف الإماراتي"))
-            address = st.text_area(local("Delivery address and area", "العنوان والمنطقة"))
-            confirmed = st.form_submit_button(local("Review payment options", "عرض خيارات الدفع"), use_container_width=True)
-        if confirmed:
-            if not customer.strip() or not phone.strip() or not address.strip():
-                st.error(local("Please complete all delivery fields.", "يرجى تعبئة جميع بيانات التوصيل."))
-                st.session_state.checkout_ready = False
-            else:
-                st.session_state.checkout_ready = True
-                st.session_state.order_details = (customer.strip(), phone.strip(), address.strip(), emirate, area, cart_qty, total)
-        if st.session_state.get("checkout_ready"):
-            details = st.session_state.get("order_details")
-            if details and details[3] == emirate and details[4] == area and details[5] == cart_qty and details[6] == total:
-                st.markdown(f'<div class="checkout-notice">{html.escape(local("Order details reviewed. Payment is not yet confirmed.", "تمت مراجعة بيانات الطلب. الدفع غير مؤكد بعد."))}</div>', unsafe_allow_html=True)
-                st.markdown(f"**{local('Payable amount', 'المبلغ المطلوب')}: AED {total}**")
-                ziina_url = "https://pay.ziina.com/Sulaiman97/XGrEI3duJ?source=app"
-                st.link_button(local("CONTINUE TO ZIINA", "المتابعة إلى زينة"), ziina_url, use_container_width=True)
-                st.markdown(f'<div class="checkout-notice">{html.escape(local("Total: AED " + str(total) + ". Verify the recipient and exact amount on Ziina before paying. Do not pay if either differs. Payment does not automatically confirm your order here.", "الإجمالي: " + str(total) + " درهماً. تحقق من المستلم والمبلغ في زينة قبل الدفع. لا تدفع إذا اختلف أي منهما. الدفع لا يؤكد الطلب تلقائياً هنا."))}</div>', unsafe_allow_html=True)
-                st.markdown(f'<a class="order" href="https://ig.me/m/houseofver_" target="_blank" rel="noopener noreferrer">{local("CONTACT US ON INSTAGRAM", "تواصل معنا عبر إنستغرام")}</a>', unsafe_allow_html=True)
-                st.caption(local("No order is placed and no personal details are sent by this form. Confirm the order with HOUSE OF VÈR on Instagram.", "لا يتم إرسال بياناتك أو تسجيل طلب تلقائياً من هذا النموذج. أكّد الطلب مع هاوس أوف ڤير عبر إنستغرام."))
-            else:
-                st.session_state.checkout_ready = False
+            customer = st.text_input(local("Full name", "الاسم الكامل"), max_chars=120)
+            phone = st.text_input(local("UAE mobile number", "رقم الهاتف الإماراتي"), max_chars=30)
+            email = st.text_input(local("Email address", "البريد الإلكتروني"), max_chars=254)
+            instagram = st.text_input(local("Instagram username (optional)", "حساب إنستغرام (اختياري)"), max_chars=60)
+            address = st.text_area(local("Delivery address and area", "العنوان والمنطقة"), max_chars=500)
+            confirmed = st.form_submit_button(local("SUBMIT ORDER REQUEST", "إرسال الطلب"), use_container_width=True)
+        fingerprint = (customer.strip(), phone.strip(), email.strip(), instagram.strip(), address.strip(), emirate, area, cart_qty, total)
+        if confirmed and st.session_state.get("saved_order_fingerprint") != fingerprint:
+            try:
+                with st.spinner(local("Saving order...", "جارٍ تسجيل الطلب...")):
+                    oid = save_order(customer, phone, email, instagram, address, emirate, area, cart_qty, PRICE, delivery)
+                st.session_state.saved_order_fingerprint = fingerprint
+                st.session_state.saved_order_id = oid
+            except ValueError as exc:
+                st.error(str(exc))
+            except Exception:
+                st.error(local("Could not save your order. Please try again or contact us on Instagram.", "تعذر تسجيل الطلب. يرجى المحاولة مجدداً أو التواصل عبر إنستغرام."))
+        if st.session_state.get("saved_order_fingerprint") == fingerprint:
+            st.markdown(f"**{local('Order request received', 'تم استلام الطلب')} — {st.session_state.saved_order_id}**")
+            st.markdown(f"**{local('Total', 'الإجمالي')}: AED {total}**")
+            st.caption(local("Payment is NOT verified. Save your order number. No confirmation email is sent.", "لم يتم التحقق من الدفع. احتفظ برقم الطلب. لن يتم إرسال بريد تأكيد."))
+            st.link_button(local("CONTINUE TO ZIINA", "المتابعة إلى زينة"), "https://pay.ziina.com/Sulaiman97/XGrEI3duJ?source=app", use_container_width=True)
+            st.markdown(f'<div class="checkout-notice">{local("Check the recipient and exact amount in Ziina before paying. Payment is verified manually.", "تأكد من المستلم والمبلغ في زينة قبل الدفع. يتم التحقق من الدفع يدوياً.")}</div>', unsafe_allow_html=True)
+        else:
+            st.caption(local("Submitting creates an order request, not a confirmed payment.", "إرسال الطلب يسجل طلب شراء وليس دفعاً مؤكداً."))
         st.markdown(f'<div class="fine"></div><div class="copy">{local("Need help? Contact @houseofver_ on Instagram.", "للمساعدة تواصل معنا عبر إنستغرام @houseofver_")}</div>', unsafe_allow_html=True)
 
 st.markdown('<div class="footer">HOUSE OF VÈR · THE ESSENCE OF PRESENCE</div>', unsafe_allow_html=True)
