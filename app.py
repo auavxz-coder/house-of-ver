@@ -49,6 +49,16 @@ header[data-testid="stHeader"]{background:transparent}
 </style>'''.replace('ART',art),unsafe_allow_html=True)
 
 
+st.markdown(
+    f'<div style="max-width:1100px;margin:auto;'
+    f'height:380px;overflow:hidden;border:double 5px #b8893b;'
+    f'background:#fff2e4;">'
+    f'<img src="{art}" alt="HOUSE OF VÈR" '
+    f'style="width:100%;height:100%;object-fit:cover;'
+    f'object-position:center top;display:block;">'
+    f'</div>',
+    unsafe_allow_html=True
+)
 st.markdown(f'<div class="brand-shell" style="min-height:0;padding:0;border:none;background:transparent"><img src="{art}" alt="HOUSE OF VÈR" style="display:block;width:100%;height:auto;border:double 5px #b8893b"></div>', unsafe_allow_html=True)
 st.markdown(f'<div class="bottle"><img src="{perfume}" alt="VÈR perfume bottle" /></div>',unsafe_allow_html=True)
 st.markdown(f'<div class="price">AED 225</div><div class="muted">{t("size")}</div>',unsafe_allow_html=True)
