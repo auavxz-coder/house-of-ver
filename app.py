@@ -522,6 +522,17 @@ else:
             st.session_state.page = "shop"
             st.rerun()
     else:
+        st.markdown(
+            '<div style="max-width:260px;margin:8px auto 22px;'
+            'border:1px solid #d6b98c;border-radius:8px;overflow:hidden;'
+            'background:#fff8ef;box-shadow:0 6px 24px rgba(100,72,45,.07)">'
+            f'<img src="{perfume}" alt="VÈR Eau de Parfum 100 ml" '
+            'style="width:100%;height:auto;display:block;object-fit:contain">'
+            '</div>', unsafe_allow_html=True)
+        st.markdown(
+            f'<div style="text-align:center;color:#8f692f;font-family:Georgia,serif;'
+            f'font-size:21px;margin-bottom:18px">{local("VÈR Eau de Parfum · 100 ml", "عطر ڤير · ١٠٠ مل")}</div>',
+            unsafe_allow_html=True)
         cart_qty = st.number_input(local("VÈR Eau de Parfum · 100 ml — Quantity", "عطر ڤير · ١٠٠ مل — الكمية"), min_value=0, max_value=20, step=1, key="cart_qty")
         if cart_qty == 0:
             st.session_state.page = "shop"
