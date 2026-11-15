@@ -532,18 +532,62 @@ elif nav == "account":
             +profile_item(local("INSTAGRAM","الإنستغرام"),profile.get("instagram"))
             +profile_item(local("DELIVERY ADDRESS","عنوان التوصيل"),profile.get("address"))
             +'</div></div>',unsafe_allow_html=True)
+        st.markdown("""
+        <style>
+        /* Restrained luxury treatment for editable profile and account-security panels. */
+        div[data-testid="stExpander"]{
+          border:1px solid #dbc4a0!important;border-radius:11px!important;
+          background:#fff9f1!important;box-shadow:0 5px 20px rgba(95,63,32,.045);
+          overflow:hidden;margin:12px 0 18px;
+        }
+        div[data-testid="stExpander"] details summary{
+          padding:16px 19px!important;background:#f6ead9!important;
+          color:#79552f!important;font-family:Georgia,serif!important;
+          letter-spacing:.055em!important;font-size:16px!important;
+        }
+        div[data-testid="stExpander"] details[open] summary{
+          border-bottom:1px solid #dfc7a6!important;
+        }
+        div[data-testid="stExpander"] [data-testid="stExpanderDetails"]{
+          padding:22px 24px 24px!important;
+        }
+        div[data-testid="stExpander"] [data-testid="stForm"]{
+          background:transparent!important;border:0!important;
+          padding:0!important;
+        }
+        div[data-testid="stExpander"] input,
+        div[data-testid="stExpander"] textarea{
+          background:#fffdf9!important;border:1px solid #ddcbb3!important;
+          border-radius:6px!important;color:#563c28!important;
+          font-family:Georgia,serif!important;
+        }
+        div[data-testid="stExpander"] input:focus,
+        div[data-testid="stExpander"] textarea:focus{
+          border-color:#a47a42!important;box-shadow:0 0 0 1px #a47a42!important;
+        }
+        div[data-testid="stExpander"] [data-testid="stFormSubmitButton"] button{
+          background:#916b36!important;color:#fff9ef!important;
+          border-radius:6px!important;border:1px solid #916b36!important;
+          min-height:45px!important;letter-spacing:.06em!important;
+        }
+        @media(max-width:650px){
+          div[data-testid="stExpander"] [data-testid="stExpanderDetails"]{
+            padding:16px!important;
+          }
+        }
+        </style>
+        """,unsafe_allow_html=True)
         save=False
-        with st.expander(local("EDIT PERSONAL DETAILS","تعديل البيانات الشخصية")):
-            st.caption(local("Update your saved details for your next order.","حدّث بياناتك المحفوظة للطلبات القادمة."))
+        with st.expander(local("EDIT PERSONAL DETAILS","تعديل البيانات الشخصية"),expanded=False):
+            st.caption(local("Changes here will be saved for your next checkout.","سيتم حفظ التعديلات للطلبات القادمة."))
             with st.form("customer_profile_form"):
                 c1,c2=st.columns(2,gap="medium")
                 with c1:
                     fullname=st.text_input(local("Full name","الاسم الكامل"),value=profile.get("full_name") or "",max_chars=120)
                     phone=st.text_input(local("Phone","رقم الهاتف"),value=profile.get("phone") or "",max_chars=30)
                 with c2:
-                    instagram=st.text_input(local("Instagram","الإنستغرام"),value=profile.get("instagram") or "",max_chars=60)
-                    st.text_input(local("Account email","البريد الإلكتروني للحساب"),value=st.session_state.get("customer_email",""),disabled=True)
-                address=st.text_area(local("Saved delivery address","عنوان التوصيل المحفوظ"),value=profile.get("address") or "",max_chars=500)
+                    instagram=st.text_input(local("Instagram username","حساب الإنستغرام"),value=profile.get("instagram") or "",max_chars=60)
+                address=st.text_area(local("Delivery address","عنوان التوصيل"),value=profile.get("address") or "",max_chars=500,height=90)
                 save=st.form_submit_button(local("SAVE CHANGES","حفظ التغييرات"),use_container_width=True)
         if save:
             try:
@@ -681,15 +725,19 @@ elif nav == "account":
             st.warning(local("Order history is temporarily unavailable.","سجل الطلبات غير متاح حالياً."))
         st.markdown('<div class="ver-account-section">'+html.escape(local("ACCOUNT SETTINGS","إعدادات الحساب"))+'</div><div class="ver-account-rule"></div>',unsafe_allow_html=True)
         st.markdown(
-            '<div style="background:#fff9f0;border:1px solid #dfc9a8;border-radius:10px;'
-            'padding:19px 22px;margin:12px 0 20px">'
-            '<div style="font-family:Georgia,serif;font-size:20px;color:#79552e;margin-bottom:8px">'
+            '<div style="background:linear-gradient(115deg,#f4e5cf,#fff9f0 68%,#ead7b8);'
+            'border:1px solid #d8bb91;border-radius:12px;padding:25px 27px;'
+            'margin:15px 0 22px;box-shadow:0 7px 23px rgba(91,62,32,.05)">'
+            '<div style="font-family:Georgia,serif;font-size:11px;letter-spacing:.2em;'
+            'color:#9b7541;margin-bottom:11px">HOUSE OF VÈR · PRIVATE ACCOUNT</div>'
+            '<div style="font-family:Georgia,serif;font-size:clamp(22px,3vw,29px);'
+            'color:#65452b;margin-bottom:11px">'
             +html.escape(local("ACCOUNT SECURITY","أمان الحساب"))+'</div>'
-            '<div style="color:#846c50;font-size:14px;line-height:1.6">'
-            +html.escape(local("Update your password or securely sign out of this session.",
-                               "يمكنك تغيير كلمة المرور أو تسجيل الخروج من هذه الجلسة بأمان."))+'</div></div>',
+            '<div style="color:#80684d;font-size:15px;line-height:1.65">'
+            +html.escape(local("Your account, protected. Manage your password and current session.",
+                               "حسابك بأمان. يمكنك إدارة كلمة المرور وجلسة تسجيل الدخول الحالية."))+'</div></div>',
             unsafe_allow_html=True)
-        with st.expander(local("CHANGE PASSWORD","تغيير كلمة المرور")):
+        with st.expander(local("CHANGE PASSWORD","تغيير كلمة المرور"),expanded=False):
             with st.form("change_customer_password",clear_on_submit=True):
                 new_password=st.text_input(local("New password","كلمة المرور الجديدة"),type="password",max_chars=128)
                 confirm_password=st.text_input(local("Confirm new password","تأكيد كلمة المرور"),type="password",max_chars=128)
