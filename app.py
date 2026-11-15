@@ -94,7 +94,8 @@ if "cart_qty" not in st.session_state:
 if "page" not in st.session_state:
     st.session_state.page = "shop"
 
-nav = st.radio(local("Explore", "تصفح"), ["shop", "cart"], format_func=lambda v: (local("Perfume", "العطر") if v == "shop" else local("Cart & payment", "السلة والدفع") + f" ({st.session_state.cart_qty})"), horizontal=True, label_visibility="collapsed", key="page")
+nav = st.radio(local("Explore", "تصفح"), ["shop", "cart"], format_func=lambda v: (local("Perfume", "العطر") if v == "shop" else local("Cart & payment", "السلة والدفع") + f" ({st.session_state.cart_qty})"), horizontal=True, label_visibility="collapsed", index=0 if st.session_state.page == "shop" else 1)
+st.session_state.page = nav
 
 if nav == "shop":
     st.markdown(f'<div class="bottle"><img src="{perfume}" alt="VÈR perfume bottle"></div>', unsafe_allow_html=True)
