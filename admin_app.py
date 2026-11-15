@@ -87,6 +87,8 @@ for order in orders:
         st.write("Delivery:",order.get("emirate"),"—",order.get("area"))
         st.write("Address:",order.get("address"))
         st.write("Quantity:",order.get("quantity"),"| Delivery fee: AED",order.get("delivery_fee"))
+        if order.get("payment_status") == "cod_pending":
+            st.info("Cash on delivery: AED 5 surcharge is included in the order total. Contact the customer to confirm delivery.")
         proof_path = order.get("payment_proof_path")
         if proof_path:
             st.caption("Customer submitted a payment screenshot. Verify the payment directly in Ziina before marking paid.")
@@ -109,7 +111,7 @@ for order in orders:
         else:
             st.caption("No payment screenshot submitted yet.")
 
-        pay_values=["awaiting_verification","paid_verified","failed","refunded"]
+        pay_values=["awaiting_verification","cod_pending","paid_verified","failed","refunded"]
         fulfillment=["new","preparing","shipped","delivered","cancelled"]
         with st.form("update_"+oid):
             payment=st.selectbox("Payment",pay_values,index=pay_values.index(order.get("payment_status")) if order.get("payment_status") in pay_values else 0)

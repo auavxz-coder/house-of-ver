@@ -1,7 +1,7 @@
 import base64
 from pathlib import Path
 import streamlit as st
-from order_store import save_order, upload_payment_proof
+from order_store import save_order, upload_payment_proof, choose_payment
 
 st.set_page_config(page_title='HOUSE OF VÈR | The Essence of Presence', page_icon='✦', layout='wide', initial_sidebar_state='collapsed')
 BASE=Path(__file__).parent
@@ -414,6 +414,51 @@ elif nav == "shop":
         notes_src = img_data('notes.jpg.png')
         st.markdown(f'<div style="max-width:560px;margin:20px auto"><img src="{notes_src}" alt="VÈR fragrance notes" style="display:block;width:100%;height:auto;border-radius:4px"></div>', unsafe_allow_html=True)
 
+elif nav == "payment":
+    st.markdown("## " + local("PAYMENT", "الدفع"))
+    oid = st.session_state.get("saved_order_id")
+    base_total = st.session_state.get("order_base_total")
+    if not oid or not base_total:
+        st.warning(local("Submit an order first.", "ارسلي الطلب أولاً."))
+    else:
+        st.write(local("Order number", "رقم الطلب") + ": " + oid)
+        method = st.radio(local("Choose payment method", "اختاري طريقة الدفع"), ["ziina", "cod"],
+            format_func=lambda x: local("Ziina online payment", "زينة - دفع إلكتروني") if x == "ziina" else local("Cash on delivery (+ AED 5)", "الدفع عند الاستلام (+٥ دراهم)"))
+        payable = base_total + (5 if method == "cod" else 0)
+        st.markdown("### " + local("Total", "الإجمالي") + ": AED " + str(payable))
+        if st.button(local("CONFIRM PAYMENT METHOD", "تأكيد طريقة الدفع"), use_container_width=True):
+            try:
+                saved_total = choose_payment(oid, method, base_total)
+                st.session_state.chosen_payment = method
+                st.session_state.chosen_total = saved_total
+            except Exception:
+                st.error(local("Could not save payment method. Please contact us.", "تعذر حفظ طريقة الدفع. تواصلي ويانا."))
+        if st.session_state.get("chosen_payment") == method:
+            if method == "cod":
+                st.info(local("Cash on delivery selected. Your order is awaiting confirmation. We will contact you on Instagram, email or phone before dispatch. Pay AED " + str(st.session_state.chosen_total) + " upon delivery.", "تم اختيار الدفع عند الاستلام. الطلب بانتظار التأكيد. بنتواصل وياج عبر الإنستغرام أو الإيميل أو التلفون قبل التوصيل. المبلغ عند الاستلام " + str(st.session_state.chosen_total) + " درهم."))
+            else:
+                links = {270:"https://pay.ziina.com/Sulaiman97/XGrEI3duJ?source=app",290:"https://pay.ziina.com/Sulaiman97/kjDR_i_KW?source=app"}
+                if base_total in links:
+                    st.link_button(local("PAY WITH ZIINA", "الدفع عبر زينة"), links[base_total], use_container_width=True)
+                    st.caption(local("After paying, return to this page and upload the screenshot. Check the recipient and amount before paying.", "عقب الدفع ارجعي لهالصفحة وارفعي صورة الدفع. تأكدي من المستلم والمبلغ."))
+                else:
+                    st.warning(local("Contact us on Instagram for the correct payment link.", "تواصلي ويانا عبر إنستغرام لرابط الدفع الصحيح."))
+                if st.session_state.get("proof_uploaded_for") == oid:
+                    render_payment_thank_you(proof_received=True)
+                    st.write(local("Order number", "رقم الطلب") + ": " + oid)
+                else:
+                    with st.form("payment_proof_form"):
+                        proof = st.file_uploader(local("Payment screenshot (required)", "صورة الدفع (إجبارية)"), type=["png","jpg","jpeg"])
+                        submitted = st.form_submit_button(local("SUBMIT PAYMENT PROOF", "إرسال إثبات الدفع"))
+                    if submitted:
+                        try:
+                            upload_payment_proof(oid, proof)
+                            st.session_state.proof_uploaded_for = oid
+                            st.rerun()
+                        except ValueError as exc:
+                            st.error(str(exc))
+                        except Exception:
+                            st.error(local("Could not upload screenshot. Please retry.", "تعذر رفع الصورة. حاولي مرة ثانية."))
 else:
     st.markdown(f'<div class="section-title">{local("YOUR SHOPPING BAG", "سلة التسوق")}</div>', unsafe_allow_html=True)
     if st.session_state.cart_qty == 0:
@@ -458,42 +503,12 @@ else:
             except Exception:
                 st.error(local("Could not save your order. Please try again or contact us on Instagram.", "تعذر تسجيل الطلب. يرجى المحاولة مجدداً أو التواصل عبر إنستغرام."))
         if st.session_state.get("saved_order_fingerprint") == fingerprint:
-            st.markdown(f"**{local('Order request received', 'تم استلام الطلب')} — {st.session_state.saved_order_id}**")
-            st.markdown(f"**{local('Total', 'الإجمالي')}: AED {total}**")
-            st.caption(local("Payment is NOT verified. Save your order number. No confirmation email is sent.", "لم يتم التحقق من الدفع. احتفظ برقم الطلب. لن يتم إرسال بريد تأكيد."))
-            ziina_links = {
-                270: "https://pay.ziina.com/Sulaiman97/XGrEI3duJ?source=app",
-                290: "https://pay.ziina.com/Sulaiman97/kjDR_i_KW?source=app",
-            }
-            if total in ziina_links:
-                st.link_button(local("CONTINUE TO ZIINA", "المتابعة إلى زينة"), ziina_links[total], use_container_width=True)
-            else:
-                st.warning(local("No verified amount-specific Ziina link is configured for this total. Contact us on Instagram for payment.", "لا يوجد رابط زينة مخصص لهذا المبلغ. تواصل معنا عبر إنستغرام لإتمام الدفع."))
-            st.markdown(f"#### {local('Upload Ziina payment screenshot', 'ارفع صورة إثبات الدفع من زينة')}")
-            st.caption(local("After paying, return here and upload a screenshot showing the transaction. Do not include card numbers or other unnecessary financial details.", "بعد الدفع ارجع وارفع صورة توضح العملية. لا ترفع أرقام البطاقات أو أي معلومات مالية غير ضرورية."))
-            with st.form("payment_proof_form"):
-                proof = st.file_uploader(local("Payment screenshot (required)", "صورة إثبات الدفع (إجبارية)"), type=["png","jpg","jpeg"], key="payment_proof")
-                proof_submit = st.form_submit_button(local("SUBMIT PAYMENT PROOF", "إرسال إثبات الدفع"), use_container_width=True)
-            if proof_submit:
-                try:
-                    with st.spinner(local("Uploading screenshot...", "جارٍ رفع الصورة...")):
-                        upload_payment_proof(st.session_state.saved_order_id, proof)
-                    st.session_state.proof_uploaded_for = st.session_state.saved_order_id
-                    render_payment_thank_you(proof_received=True)
-                    st.markdown(f"**{local('Order number', 'رقم الطلب')}: {st.session_state.saved_order_id}**")
-                    st.stop()
-                except ValueError as exc:
-                    st.error(str(exc))
-                except Exception:
-                    st.error(local("Could not upload proof. Please try again or contact us on Instagram. Payment is not confirmed.", "تعذر رفع إثبات الدفع. حاول مرة أخرى أو تواصل عبر إنستغرام. الدفع غير مؤكد."))
-            elif st.session_state.get("proof_uploaded_for") == st.session_state.saved_order_id:
-                render_payment_thank_you(proof_received=True)
-                st.markdown(f"**{local('Order number', 'رقم الطلب')}: {st.session_state.saved_order_id}**")
-                st.stop()
-
-            st.markdown(f'<div class="checkout-notice">{local("Check the recipient and exact amount in Ziina before paying. Payment is verified manually.", "تأكد من المستلم والمبلغ في زينة قبل الدفع. يتم التحقق من الدفع يدوياً.")}</div>', unsafe_allow_html=True)
+            st.session_state.order_base_total = total
+            st.session_state.page = "payment"
+            st.rerun()
         else:
-            st.caption(local("Submitting creates an order request, not a confirmed payment.", "إرسال الطلب يسجل طلب شراء وليس دفعاً مؤكداً."))
+            st.caption(local("After submitting, choose your payment method.", "عقب إرسال الطلب اختاري طريقة الدفع."))
+
         st.markdown(f'<div class="fine"></div><div class="copy">{local("Need help? Contact @houseofver_ on Instagram.", "للمساعدة تواصل معنا عبر إنستغرام @houseofver_")}</div>', unsafe_allow_html=True)
 
 st.markdown('<div class="footer">HOUSE OF VÈR · THE ESSENCE OF PRESENCE</div>', unsafe_allow_html=True)
