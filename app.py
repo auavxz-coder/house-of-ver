@@ -117,6 +117,13 @@ div.stButton > button{min-height:44px}
 .stApp [data-testid="stFormSubmitButton"] button:hover{background:#765122!important}
 .stApp [data-testid="stRadio"] label p{color:#493425!important}
 @media(max-width:650px){.stApp [data-testid="stForm"]{padding:14px!important}}
+
+.stApp [data-testid="stAlert"]{background:#fff9ef!important;border:1px solid #d7b98d!important;color:#60482e!important;border-radius:6px!important}
+.stApp [data-testid="stAlert"] *{color:#60482e!important}
+.stApp div.stButton>button{background:#946d36!important;color:#fffaf2!important;border:1px solid #946d36!important;font-weight:600!important;border-radius:4px!important}
+.stApp div.stButton>button p,.stApp div.stButton>button span{color:#fffaf2!important}
+.stApp div.stButton>button:hover{background:#765122!important;color:white!important}
+.stApp [data-testid="stRadio"] label{background:transparent!important}
 </style>""", unsafe_allow_html=True)
 
 if "cart_qty" not in st.session_state:
