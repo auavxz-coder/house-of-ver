@@ -5,7 +5,7 @@ import uuid
 import urllib.request
 import streamlit as st
 
-def save_order(name, phone, email, instagram, address, emirate, area, quantity, price, delivery, is_gift=False, gift_message=""):
+def save_order(name, phone, email, instagram, address, emirate, area, quantity, price, delivery, is_gift=False, gift_message="", customer_token=None):
     name, phone, email, instagram, address = [x.strip() for x in (name, phone, email, instagram, address)]
     if not all([name, phone, email, instagram, address]):
         raise ValueError('Complete all required fields.')
@@ -33,6 +33,16 @@ def save_order(name, phone, email, instagram, address, emirate, area, quantity, 
         'quantity': quantity, 'subtotal': price*quantity, 'delivery_fee': delivery,
         'total': price*quantity+delivery, 'payment_status': 'awaiting_verification',
         'fulfillment_status': 'new'}
+    if customer_token:
+        # Verify Supabase-issued access token server-side before associating an order.
+        public_key=str(st.secrets["SUPABASE_PUBLISHABLE_KEY"]).strip()
+        verify_headers={"apikey":public_key,"Authorization":"Bearer "+customer_token}
+        verify_req=urllib.request.Request(url+"/auth/v1/user",headers=verify_headers)
+        with urllib.request.urlopen(verify_req,timeout=12) as response:
+            user=json.loads(response.read().decode())
+        if not user.get("id") or user.get("email","").lower()!=email.lower():
+            raise ValueError("Signed-in email must match the order email")
+        record["user_id"]=user["id"]
     if is_gift:
         record['is_gift'] = True
         record['gift_message'] = gift_message

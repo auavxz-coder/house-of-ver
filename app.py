@@ -2,6 +2,7 @@ import base64
 from pathlib import Path
 import streamlit as st
 from order_store import save_order, upload_payment_proof, choose_payment, payment_state, lookup_order_status
+import customer_auth as auth
 
 st.set_page_config(page_title='HOUSE OF VÈR | The Essence of Presence', page_icon='✦', layout='wide', initial_sidebar_state='collapsed')
 BASE=Path(__file__).parent
@@ -364,6 +365,7 @@ with nav_right:
         st.button(local("CART & PAYMENT", "السلة والدفع") + f" ({st.session_state.cart_qty})", key="menu_cart", use_container_width=True, on_click=go_to, args=("cart",))
         st.button(local("OUR STORY", "قصتنا"), key="menu_story", use_container_width=True, on_click=go_to, args=("story",))
         st.button(local("TRACK YOUR ORDER", "تتبع الطلب"), key="menu_tracking", use_container_width=True, on_click=go_to, args=("tracking",))
+        st.button(local("MY ACCOUNT", "حسابي"), key="menu_account", use_container_width=True, on_click=go_to, args=("account",))
 if ar:
     st.markdown('<style>.stApp .st-key-lang_ar button{border-bottom:1px solid #986821!important}</style>',unsafe_allow_html=True)
 else:
@@ -409,6 +411,76 @@ elif nav == "story":
     story_html += '</div>'
     st.markdown(story_html, unsafe_allow_html=True)
     st.markdown(f'<a class="order" href="https://ig.me/m/houseofver_" target="_blank" rel="noopener noreferrer">{local("DISCOVER VÈR ON INSTAGRAM", "اكتشف ڤير عبر إنستغرام")}</a>', unsafe_allow_html=True)
+elif nav == "account":
+    st.markdown(f'<div class="section-title">{local("MY ACCOUNT", "حسابي")}</div>',unsafe_allow_html=True)
+    st.caption(local("Accounts are optional. You can still order as a guest.", "الحساب اختياري ويمكن إكمال الطلب كضيف."))
+    try:
+        configured=bool(st.secrets.get("SUPABASE_PUBLISHABLE_KEY",""))
+    except Exception:
+        configured=False
+    if not configured:
+        st.warning(local("Customer accounts are not activated yet. Guest checkout is available.", "حسابات العملاء غير مفعلة بعد. الطلب كضيف متاح."))
+    elif not st.session_state.get("customer_token"):
+        tab=st.radio(local("Account action", "إجراء الحساب"),["login","signup","recover"],horizontal=True,
+            format_func=lambda x:{"login":local("Sign in","تسجيل الدخول"),"signup":local("Create account","إنشاء حساب"),"recover":local("Reset password","استعادة كلمة المرور")}[x])
+        with st.form("customer_auth_form"):
+            email=st.text_input(local("Email", "البريد الإلكتروني"))
+            password=st.text_input(local("Password", "كلمة المرور"),type="password") if tab!="recover" else ""
+            submitted=st.form_submit_button(local("CONTINUE","متابعة"))
+        if submitted:
+            try:
+                if tab=="recover":
+                    auth.recover(email)
+                    st.success(local("If this account exists, password recovery instructions will be emailed.", "إذا كان الحساب موجوداً، ستصل تعليمات استعادة كلمة المرور إلى البريد الإلكتروني."))
+                elif tab=="signup":
+                    if len(password)<10:
+                        st.error(local("Use a password of at least 10 characters.", "استخدم كلمة مرور من ١٠ أحرف على الأقل."))
+                    else:
+                        auth.signup(email,password)
+                        st.success(local("Check your email to confirm your account, then sign in.", "يرجى تأكيد الحساب عبر البريد الإلكتروني ثم تسجيل الدخول."))
+                else:
+                    session=auth.signin(email,password)
+                    user=auth.current_user(session["access_token"])
+                    st.session_state.customer_token=session["access_token"]
+                    st.session_state.customer_id=user["id"]
+                    st.session_state.customer_email=user["email"]
+                    profile=auth.get_profile(session["access_token"])
+                    st.session_state.customer_profile=profile
+                    if profile.get("cart_qty") is not None:
+                        st.session_state.cart_qty=int(profile["cart_qty"])
+                    st.rerun()
+            except (ValueError,RuntimeError,KeyError):
+                st.error(local("Unable to complete account request. Check your details and account settings.", "تعذر إكمال العملية. يرجى مراجعة البيانات وإعدادات الحساب."))
+    else:
+        st.success(local("Signed in as", "تم تسجيل الدخول باسم")+" "+st.session_state.get("customer_email",""))
+        if st.button(local("SIGN OUT", "تسجيل الخروج")):
+            for key in ("customer_token","customer_id","customer_email","customer_profile"):
+                st.session_state.pop(key,None)
+            st.rerun()
+        profile=st.session_state.get("customer_profile",{})
+        with st.form("customer_profile_form"):
+            fullname=st.text_input(local("Full name","الاسم الكامل"),value=profile.get("full_name") or "",max_chars=120)
+            phone=st.text_input(local("Phone","رقم الهاتف"),value=profile.get("phone") or "",max_chars=30)
+            instagram=st.text_input(local("Instagram","الإنستغرام"),value=profile.get("instagram") or "",max_chars=60)
+            address=st.text_area(local("Saved delivery address","عنوان التوصيل المحفوظ"),value=profile.get("address") or "",max_chars=500)
+            save=st.form_submit_button(local("SAVE DETAILS","حفظ البيانات"))
+        if save:
+            try:
+                auth.save_profile(st.session_state.customer_token,st.session_state.customer_id,
+                    full_name=fullname,phone=phone,instagram=instagram,address=address)
+                st.session_state.customer_profile=auth.get_profile(st.session_state.customer_token)
+                st.success(local("Details saved.","تم حفظ البيانات."))
+            except Exception:
+                st.error(local("Could not save details.","تعذر حفظ البيانات."))
+        st.markdown("### "+local("MY ORDERS","طلباتي"))
+        try:
+            orders=auth.my_orders(st.session_state.customer_token)
+            if not orders:
+                st.caption(local("No account-linked orders yet. Guest orders are not automatically linked.", "لا توجد طلبات مرتبطة بالحساب بعد. الطلبات السابقة كضيف لا ترتبط تلقائياً."))
+            for order in orders:
+                st.markdown(f'<div class="checkout-notice"><strong>{html.escape(order["order_id"])}</strong> · AED {order["total"]}<div>{html.escape(order["fulfillment_status"])} · {html.escape(order["payment_status"])}</div></div>',unsafe_allow_html=True)
+        except Exception:
+            st.warning(local("Order history is temporarily unavailable.","سجل الطلبات غير متاح حالياً."))
 elif nav == "tracking":
     st.markdown(f'<div class="section-title">{local("TRACK YOUR ORDER", "تتبع الطلب")}</div>',unsafe_allow_html=True)
     st.markdown(f'<div class="copy">{local("Check the latest status of your HOUSE OF VÈR order.", "تابع آخر تحديث لحالة طلبك من HOUSE OF VÈR.")}</div>',unsafe_allow_html=True)
@@ -479,7 +551,12 @@ elif nav == "shop":
     st.markdown(f'<div class="price">AED {PRICE}</div><div class="muted">{local("VÈR Eau de Parfum · 100 ml", "عطر ڤير · ١٠٠ مل")}</div>', unsafe_allow_html=True)
     qty = st.number_input(local("Quantity", "الكمية"), min_value=1, max_value=20, value=1, step=1)
     if st.button(local("ADD TO CART", "أضف إلى السلة"), type="primary", use_container_width=True):
-        st.session_state.cart_qty += int(qty)
+        st.session_state.cart_qty = min(20, st.session_state.cart_qty + int(qty))
+        if st.session_state.get("customer_token"):
+            try:
+                auth.save_profile(st.session_state.customer_token,st.session_state.customer_id,cart_qty=st.session_state.cart_qty)
+            except Exception:
+                st.warning(local("Cart could not sync to your account.", "تعذرت مزامنة السلة مع الحساب."))
         st.session_state.page = "cart"
         st.rerun()
     st.markdown(
@@ -629,6 +706,12 @@ else:
             f'font-size:21px;margin-bottom:18px">{local("VÈR Eau de Parfum · 100 ml", "عطر ڤير · ١٠٠ مل")}</div>',
             unsafe_allow_html=True)
         cart_qty = st.number_input(local("VÈR Eau de Parfum · 100 ml — Quantity", "عطر ڤير · ١٠٠ مل — الكمية"), min_value=0, max_value=20, step=1, key="cart_qty")
+        if st.session_state.get("customer_token") and st.session_state.get("last_synced_cart") != cart_qty:
+            try:
+                auth.save_profile(st.session_state.customer_token,st.session_state.customer_id,cart_qty=cart_qty)
+                st.session_state.last_synced_cart=cart_qty
+            except Exception:
+                st.warning(local("Cart could not sync to your account.", "تعذرت مزامنة السلة مع الحساب."))
         if cart_qty == 0:
             st.session_state.page = "shop"
             st.rerun()
@@ -645,18 +728,19 @@ else:
         st.caption(local("Delivery fee is calculated for your selected area, per order.", "يتم احتساب رسوم التوصيل حسب المنطقة المختارة لكل طلب."))
         st.markdown(f"#### {local('Delivery details', 'بيانات التوصيل')}")
         with st.form("delivery_details"):
-            customer = st.text_input(local("Full name", "الاسم الكامل"), max_chars=120)
-            phone = st.text_input(local("UAE mobile number", "رقم الهاتف الإماراتي"), max_chars=30)
-            email = st.text_input(local("Email address", "البريد الإلكتروني"), max_chars=254)
-            instagram = st.text_input(local("Instagram username (required)", "حساب إنستغرام (إجباري)"), max_chars=60)
-            address = st.text_area(local("Delivery address and area", "العنوان والمنطقة"), max_chars=500)
+            saved_profile=st.session_state.get("customer_profile",{}) if st.session_state.get("customer_token") else {}
+            customer = st.text_input(local("Full name", "الاسم الكامل"), value=saved_profile.get("full_name") or "", max_chars=120)
+            phone = st.text_input(local("UAE mobile number", "رقم الهاتف الإماراتي"), value=saved_profile.get("phone") or "", max_chars=30)
+            email = st.text_input(local("Email address", "البريد الإلكتروني"), value=st.session_state.get("customer_email",""), max_chars=254)
+            instagram = st.text_input(local("Instagram username (required)", "حساب إنستغرام (إجباري)"), value=saved_profile.get("instagram") or "", max_chars=60)
+            address = st.text_area(local("Delivery address and area", "العنوان والمنطقة"), value=saved_profile.get("address") or "", max_chars=500)
             st.caption(local("IMPORTANT: The full name on your order must match the name on your Ziina payment account. We use it to match payments manually.", "مهم: يجب أن يطابق الاسم في الطلب الاسم المسجل في حساب زينة المستخدم للدفع حتى نتمكن من مطابقة الدفعة يدوياً."))
             confirmed = st.form_submit_button(local("SUBMIT ORDER REQUEST", "إرسال الطلب"), use_container_width=True)
         fingerprint = (customer.strip(), phone.strip(), email.strip(), instagram.strip(), address.strip(), emirate, area, cart_qty, total)
         if confirmed and st.session_state.get("saved_order_fingerprint") != fingerprint:
             try:
                 with st.spinner(local("Saving order...", "جارٍ تسجيل الطلب...")):
-                    oid = save_order(customer, phone, email, instagram, address, emirate, area, cart_qty, PRICE, delivery)
+                    oid = save_order(customer, phone, email, instagram, address, emirate, area, cart_qty, PRICE, delivery, customer_token=st.session_state.get("customer_token"))
                 st.session_state.saved_order_fingerprint = fingerprint
                 st.session_state.saved_order_id = oid
             except ValueError as exc:
