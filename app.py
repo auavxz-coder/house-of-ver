@@ -150,7 +150,10 @@ else:
                 st.success(local("Order details reviewed. Payment is not yet confirmed.", "تمت مراجعة بيانات الطلب. الدفع غير مؤكد بعد."))
                 st.markdown(f"**{local('Payable amount', 'المبلغ المطلوب')}: AED {total}**")
                 # Only show a Ziina payment link if its exact amount has been configured and checked.
-                try:\n                    ziina_links = st.secrets.get("ziina_links", {})\n                except Exception:\n                    ziina_links = {}
+                try:
+                    ziina_links = st.secrets.get("ziina_links", {})
+                except Exception:
+                    ziina_links = {}
                 link = ziina_links.get(str(total), "") if ziina_links else ""
                 if isinstance(link, str) and link.startswith("https://pay.ziina.com/"):
                     st.link_button(local("PAY WITH ZIINA", "ادفع عبر زينة"), link, use_container_width=True)
