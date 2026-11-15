@@ -481,19 +481,17 @@ elif nav == "shop":
         "heart":local("Elegant Florals", "نفحات زهرية أنيقة"),
         "base":local("Woods · Leather · Amber · Musk", "الأخشاب · الجلد · العنبر · المسك")
     }
-    # Use the existing photographic fragrance-notes asset instead of SVG illustrations.
-    # Position varies by layer while preserving the original image and brand palette.
-    photo_src = img_data("notes.jpg.png") if notes_image else perfume
-    image_position = {"top":"0% 50%","heart":"50% 50%","base":"100% 50%"}[selected_note]
+    # Each fragrance layer has its own editorial photo once the assets are uploaded.
+    scent_files = {"top": "scent_top.png", "heart": "scent_heart.png", "base": "scent_base.png"}
+    selected_file = scent_files[selected_note]
+    photo_src = img_data(selected_file) if (BASE / selected_file).exists() else (img_data("notes.jpg.png") if notes_image else perfume)
     st.markdown(
         '<div style="border:1px solid #d5b98e;background:#fff8ef;border-radius:9px;'
         'padding:16px;margin:14px 0 24px;box-shadow:0 8px 28px #75552b12">'
         '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));'
         'gap:22px;align-items:center">'
-        '<div role="img" aria-label="' + html.escape(scent_titles[selected_note],quote=True) +
-        '" style="width:100%;height:320px;border-radius:7px;'
-        'background-image:url(' + photo_src + ');background-repeat:no-repeat;'
-        'background-size:300% 100%;background-position:' + image_position + ';"></div>'
+        '<img src="' + photo_src + '" alt="' + html.escape(scent_titles[selected_note],quote=True) +
+        '" style="display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;border-radius:7px">'
         '<div style="padding:12px;text-align:center">'
         '<div style="font-family:Georgia,serif;color:#a17a44;letter-spacing:.16em;font-size:12px;margin-bottom:16px">'
         + html.escape(selected_note.upper() + " NOTES") + '</div>'
