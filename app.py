@@ -304,9 +304,9 @@ box-shadow:0 0 0 1000px #fffaf4 inset!important;
 @media(max-width:650px){.thank-card{padding:25px 12px 20px;border-width:4px}.thank-star{font-size:48px}.thank-social{margin-top:28px}.thank-clouds{height:70px;margin:10px -12px -20px}.thank-clouds .cloud{height:75px;bottom:-48px}}
 </style>""", unsafe_allow_html=True)
 
-def render_payment_thank_you(preview=False):
-    """Display branded confirmation; live orders require verified payment first."""
-    label = local("DESIGN PREVIEW — NOT A PAYMENT CONFIRMATION", "معاينة التصميم — ليست تأكيداً للدفع") if preview else local("PAYMENT CONFIRMED", "تم تأكيد الدفع")
+def render_payment_thank_you(preview=False, proof_received=False):
+    """Thank-you design; payment is never marked paid by a screenshot."""
+    label = (local("PAYMENT SCREENSHOT RECEIVED — AWAITING VERIFICATION", "تم استلام إثبات الدفع — بانتظار التحقق") if proof_received else local("DESIGN PREVIEW — NOT A PAYMENT CONFIRMATION", "معاينة التصميم — ليست تأكيداً للدفع") if preview else local("PAYMENT CONFIRMED", "تم تأكيد الدفع"))
     st.markdown(f'<div class="thank-preview">{html.escape(label)}</div>', unsafe_allow_html=True)
     st.markdown("""
     <div class="thank-card">
@@ -320,7 +320,11 @@ def render_payment_thank_you(preview=False):
       <div class="thank-clouds" aria-hidden="true"><span class="cloud cloud-one"></span><span class="cloud cloud-two"></span><span class="cloud cloud-three"></span></div>
     </div>
     """, unsafe_allow_html=True)
-    st.caption(local("The discount code is displayed as provided; automatic discount redemption is not configured.", "يظهر رمز الخصم كما تم تقديمه، لكن تطبيق الخصم تلقائياً غير مفعّل."))
+    if proof_received:
+        st.markdown(f'<div class="checkout-notice">{html.escape(local("Thank you! We received your payment screenshot. Your order is NOT confirmed yet. HOUSE OF VÈR will check the amount actually received in Ziina. Only after payment is verified will we contact you through Instagram, email, or phone to confirm your order. Please keep your order number.", "شكراً لج! استلمنا صورة إثبات الدفع، لكن طلبج مب مؤكد للحين. بنتأكد أول من المبلغ اللي وصلنا فعلياً في زينة، وعقب التأكد من الدفع بنتواصل وياج عن طريق الإنستغرام أو الإيميل أو رقم التلفون لتأكيد الطلب. احتفظي برقم الطلب."))}</div>', unsafe_allow_html=True)
+        st.caption(local("A screenshot is not proof of successful payment.", "صورة الدفع بروحها ما تعتبر تأكيد لوصول المبلغ."))
+    else:
+        st.caption(local("The discount code is displayed as provided; automatic discount redemption is not configured.", "يظهر رمز الخصم كما تم تقديمه، لكن تطبيق الخصم تلقائياً غير مفعّل."))
 
 # Never show a real payment success message from a query parameter or button click.
 # Connect Ziina server-side verification before activating the paid-order flow.
@@ -475,13 +479,17 @@ else:
                     with st.spinner(local("Uploading screenshot...", "جارٍ رفع الصورة...")):
                         upload_payment_proof(st.session_state.saved_order_id, proof)
                     st.session_state.proof_uploaded_for = st.session_state.saved_order_id
-                    st.success(local("Screenshot received. Payment is still awaiting manual verification.", "تم استلام الصورة. الدفع بانتظار التحقق اليدوي."))
+                    render_payment_thank_you(proof_received=True)
+                    st.markdown(f"**{local('Order number', 'رقم الطلب')}: {st.session_state.saved_order_id}**")
+                    st.stop()
                 except ValueError as exc:
                     st.error(str(exc))
                 except Exception:
                     st.error(local("Could not upload proof. Please try again or contact us on Instagram. Payment is not confirmed.", "تعذر رفع إثبات الدفع. حاول مرة أخرى أو تواصل عبر إنستغرام. الدفع غير مؤكد."))
             elif st.session_state.get("proof_uploaded_for") == st.session_state.saved_order_id:
-                st.info(local("Payment proof submitted. Awaiting store verification.", "تم إرسال إثبات الدفع وبانتظار تحقق المتجر."))
+                render_payment_thank_you(proof_received=True)
+                st.markdown(f"**{local('Order number', 'رقم الطلب')}: {st.session_state.saved_order_id}**")
+                st.stop()
 
             st.markdown(f'<div class="checkout-notice">{local("Check the recipient and exact amount in Ziina before paying. Payment is verified manually.", "تأكد من المستلم والمبلغ في زينة قبل الدفع. يتم التحقق من الدفع يدوياً.")}</div>', unsafe_allow_html=True)
         else:
