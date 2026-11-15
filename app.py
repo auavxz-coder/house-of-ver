@@ -48,8 +48,8 @@ header[data-testid="stHeader"]{background:transparent}
 @media(max-width:650px){.brand-shell{min-height:310px;padding:24px 12px}.brand-shell:before{background-size:cover}.sun{font-size:3rem}.block-container{padding-left:1rem;padding-right:1rem}}
 </style>'''.replace('ART',art),unsafe_allow_html=True)
 
-st.markdown(f'''<div class="brand-shell {'rtl' if ar else ''}"><div class="sun">✺</div><h1 class="brand">HOUSE OF VÈR</h1><div class="tag">THE ESSENCE OF PRESENCE</div><div class="goldline"></div><p class="copy">{t('intro')}</p></div>''',unsafe_allow_html=True)
-st.markdown(f'<div class="section-title">{t("product")}</div><div class="copy">{t("desc")}</div>',unsafe_allow_html=True)
+
+st.markdown(f'<div class="brand-shell" style="min-height:0;padding:0;border:none;background:transparent"><img src="{art}" alt="HOUSE OF VÈR" style="display:block;width:100%;height:auto;border:double 5px #b8893b"></div>', unsafe_allow_html=True)
 st.markdown(f'<div class="bottle"><img src="{perfume}" alt="VÈR perfume bottle" /></div>',unsafe_allow_html=True)
 st.markdown(f'<div class="price">AED 225</div><div class="muted">{t("size")}</div>',unsafe_allow_html=True)
 st.markdown(f'<a class="order" href="https://ig.me/m/houseofver_" target="_blank" rel="noopener noreferrer">{t("order")} ↗</a><a class="secondary" href="https://www.instagram.com/houseofver_/" target="_blank" rel="noopener noreferrer">{t("profile")}</a>',unsafe_allow_html=True)
