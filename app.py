@@ -246,13 +246,51 @@ with nav_right:
     with st.popover("☰  MENU" if not ar else "☰  القائمة", use_container_width=True):
         st.button(local("PERFUME", "العطر"), key="menu_perfume", use_container_width=True, on_click=go_to, args=("shop",))
         st.button(local("CART & PAYMENT", "السلة والدفع") + f" ({st.session_state.cart_qty})", key="menu_cart", use_container_width=True, on_click=go_to, args=("cart",))
+        st.button(local("OUR STORY", "قصتنا"), key="menu_story", use_container_width=True, on_click=go_to, args=("story",))
 if ar:
     st.markdown('<style>.stApp .st-key-lang_ar button{border-bottom:1px solid #986821!important}</style>',unsafe_allow_html=True)
 else:
     st.markdown('<style>.stApp .st-key-lang_en button{border-bottom:1px solid #986821!important}</style>',unsafe_allow_html=True)
 nav = st.session_state.page
 
-if nav == "shop":
+if nav == "story":
+    st.markdown("""<style>
+    .story-wrap{max-width:800px;margin:35px auto 70px;padding:0 14px}
+    .story-kicker{text-align:center;color:#a27b46;font-size:12px;letter-spacing:.24em}
+    .story-heading{font-family:'Cormorant Garamond','Amiri',serif;font-size:clamp(42px,6vw,72px);font-weight:400;color:#92672c;text-align:center;margin:10px 0 24px}
+    .story-rule{height:1px;background:#d5b88d;max-width:110px;margin:25px auto 48px}
+    .story-section{margin:0 0 52px}
+    .story-section h2{font-family:'Cormorant Garamond','Amiri',serif;color:#946d36;font-size:clamp(29px,4vw,42px);font-weight:500;margin:0 0 12px}
+    .story-section p{font-family:'Cormorant Garamond','Amiri',serif;color:#493425;font-size:clamp(20px,2.4vw,26px);line-height:1.7;margin:0 0 16px}
+    .story-rtl{text-align:right;direction:rtl}
+    .story-rtl p,.story-rtl h2{font-family:'Amiri',serif}
+    @media(max-width:650px){.story-wrap{margin:16px auto 50px;padding:0 6px}.story-section{margin-bottom:35px}.story-section p{font-size:21px}}
+    </style>""", unsafe_allow_html=True)
+    sections = [
+        (("THE PHILOSOPHY", "الفلسفة"),
+         ("HOUSE OF VÈR is guided by a simple belief: presence does not need to be loud to be unforgettable. The house celebrates understated elegance, individuality, and the quiet confidence that stays long after a moment has passed.",
+          "تؤمن هاوس أوف ڤير بأن الحضور لا يحتاج إلى ضجيج حتى يبقى في الذاكرة. تحتفي الدار بالأناقة الهادئة والتفرّد والثقة التي تترك أثرها حتى بعد مرور اللحظة.")),
+        (("THE ART OF FRAGRANCE", "فن العطر"),
+         ("Fragrance is more than an accessory. It becomes part of how a person moves through the world — an intimate detail, a familiar feeling, and a memory waiting to be made.",
+          "العطر أكثر من مجرد لمسة أخيرة، فهو جزء من حضور الإنسان في العالم، وتفصيل شخصي يحمل إحساساً مألوفاً وذكرى تنتظر أن تُصنع.")),
+        (("VÈR — THE SIGNATURE", "ڤير — البصمة"),
+         ("VÈR expresses the house's character through contrast: a lively opening of pink pepper and warm spice, an elegant floral heart, and a deep base of woods, leather, amber, and musk.",
+          "يعبّر عطر ڤير عن شخصية الدار بتوازن بين التباين والانسجام؛ افتتاحية من الفلفل الوردي والتوابل الدافئة، وقلب زهري أنيق، وقاعدة عميقة من الأخشاب والجلد والعنبر والمسك.")),
+        (("THE ESSENCE OF PRESENCE", "جوهر الحضور"),
+         ("HOUSE OF VÈR is devoted to the impression that remains. Not simply a scent to wear, but a presence to remember.",
+          "تحتفي هاوس أوف ڤير بالأثر الذي يبقى؛ ليس مجرد عطر يُرتدى، بل حضور لا يُنسى.")),
+    ]
+    story_class = "story-wrap story-rtl" if ar else "story-wrap"
+    story_html = '<div class="' + story_class + '">'
+    story_html += '<div class="story-kicker">HOUSE OF VÈR</div>'
+    story_html += '<div class="story-heading">' + local("OUR STORY", "قصتنا") + '</div>'
+    story_html += '<div class="story-rule"></div>'
+    for headings, paragraphs in sections:
+        story_html += '<section class="story-section"><h2>' + local(*headings) + '</h2><p>' + local(*paragraphs) + '</p></section>'
+    story_html += '</div>'
+    st.markdown(story_html, unsafe_allow_html=True)
+    st.markdown(f'<a class="order" href="https://ig.me/m/houseofver_" target="_blank" rel="noopener noreferrer">{local("DISCOVER VÈR ON INSTAGRAM", "اكتشف ڤير عبر إنستغرام")}</a>', unsafe_allow_html=True)
+elif nav == "shop":
     st.markdown(f'<div class="bottle"><img src="{perfume}" alt="VÈR perfume bottle"></div>', unsafe_allow_html=True)
     st.markdown(f'<div class="price">AED {PRICE}</div><div class="muted">{local("VÈR Eau de Parfum · 100 ml", "عطر ڤير · ١٠٠ مل")}</div>', unsafe_allow_html=True)
     qty = st.number_input(local("Quantity", "الكمية"), min_value=1, max_value=20, value=1, step=1)
