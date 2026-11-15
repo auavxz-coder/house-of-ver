@@ -452,35 +452,100 @@ elif nav == "account":
             except (ValueError,RuntimeError,KeyError):
                 st.error(local("Unable to complete account request. Check your details and account settings.", "تعذر إكمال العملية. يرجى مراجعة البيانات وإعدادات الحساب."))
     else:
-        st.success(local("Signed in as", "تم تسجيل الدخول باسم")+" "+st.session_state.get("customer_email",""))
-        if st.button(local("SIGN OUT", "تسجيل الخروج")):
-            for key in ("customer_token","customer_id","customer_email","customer_profile"):
-                st.session_state.pop(key,None)
-            st.rerun()
         profile=st.session_state.get("customer_profile",{})
-        with st.form("customer_profile_form"):
-            fullname=st.text_input(local("Full name","الاسم الكامل"),value=profile.get("full_name") or "",max_chars=120)
-            phone=st.text_input(local("Phone","رقم الهاتف"),value=profile.get("phone") or "",max_chars=30)
-            instagram=st.text_input(local("Instagram","الإنستغرام"),value=profile.get("instagram") or "",max_chars=60)
-            address=st.text_area(local("Saved delivery address","عنوان التوصيل المحفوظ"),value=profile.get("address") or "",max_chars=500)
-            save=st.form_submit_button(local("SAVE DETAILS","حفظ البيانات"))
+        display_name=(profile.get("full_name") or st.session_state.get("customer_email","")).strip()
+        st.markdown("""
+        <style>
+        .ver-account-hero{background:linear-gradient(115deg,#f4e5cf,#fff9f0 65%,#ecd3aa);
+          border:1px solid #d7b98b;border-radius:14px;padding:28px 30px;margin:16px 0 24px;
+          box-shadow:0 8px 26px rgba(88,60,30,.07)}
+        .ver-account-kicker{font-family:Georgia,serif;font-size:12px;letter-spacing:.19em;color:#9b743c}
+        .ver-account-name{font-family:Georgia,serif;font-size:clamp(26px,5vw,39px);color:#624329;
+          margin:12px 0 8px;overflow-wrap:anywhere}
+        .ver-account-sub{font-size:14px;color:#846d54;overflow-wrap:anywhere}
+        .ver-account-section{font-family:Georgia,serif;color:#76512c;letter-spacing:.08em;
+          font-size:22px;margin:22px 0 6px}
+        .ver-account-rule{height:1px;background:linear-gradient(90deg,#b78c4f,#e6d3b6,transparent);
+          margin-bottom:18px}
+        .ver-order-card{background:#fff9f0;border:1px solid #dfc9a8;border-left:3px solid #a47b42;
+          border-radius:10px;padding:19px 20px;margin:12px 0}
+        .ver-order-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center}
+        .ver-order-id{font-family:Georgia,serif;font-size:17px;color:#583c27;overflow-wrap:anywhere}
+        .ver-order-price{font-family:Georgia,serif;font-size:22px;color:#8c662e}
+        .ver-order-meta{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+        .ver-order-pill{background:#f4e6d2;border:1px solid #e1c69c;border-radius:20px;
+          color:#705032;font-size:12px;padding:6px 12px}
+        @media(max-width:640px){.ver-account-hero{padding:22px 18px}
+          .ver-order-card{padding:15px}.ver-account-section{font-size:20px}}
+        </style>
+        """,unsafe_allow_html=True)
+        st.markdown(
+            '<div class="ver-account-hero"><div class="ver-account-kicker">HOUSE OF VÈR · '+html.escape(local("MEMBER ACCOUNT","حساب العميل"))+'</div>'
+            '<div class="ver-account-name">'+html.escape(local("Welcome, ","مرحباً، ")+display_name)+'</div>'
+            '<div class="ver-account-sub">'+html.escape(st.session_state.get("customer_email",""))+'</div></div>',
+            unsafe_allow_html=True)
+        st.markdown('<div class="ver-account-section">'+html.escape(local("PERSONAL DETAILS","البيانات الشخصية"))+'</div><div class="ver-account-rule"></div>',unsafe_allow_html=True)
+        st.caption(local("Keep your delivery details up to date for a smoother checkout.", "احتفظ ببيانات التوصيل محدثة لتسهيل الطلبات القادمة."))
+        with st.container(border=True):
+            with st.form("customer_profile_form"):
+                c1,c2=st.columns(2,gap="medium")
+                with c1:
+                    fullname=st.text_input(local("Full name","الاسم الكامل"),value=profile.get("full_name") or "",max_chars=120)
+                    phone=st.text_input(local("Phone","رقم الهاتف"),value=profile.get("phone") or "",max_chars=30)
+                with c2:
+                    instagram=st.text_input(local("Instagram","الإنستغرام"),value=profile.get("instagram") or "",max_chars=60)
+                    st.text_input(local("Account email","البريد الإلكتروني للحساب"),value=st.session_state.get("customer_email",""),disabled=True)
+                address=st.text_area(local("Saved delivery address","عنوان التوصيل المحفوظ"),value=profile.get("address") or "",max_chars=500)
+                save=st.form_submit_button(local("SAVE CHANGES","حفظ التغييرات"),use_container_width=True)
         if save:
             try:
                 auth.save_profile(st.session_state.customer_token,st.session_state.customer_id,
                     full_name=fullname,phone=phone,instagram=instagram,address=address)
                 st.session_state.customer_profile=auth.get_profile(st.session_state.customer_token)
                 st.success(local("Details saved.","تم حفظ البيانات."))
+                st.rerun()
             except Exception:
                 st.error(local("Could not save details.","تعذر حفظ البيانات."))
-        st.markdown("### "+local("MY ORDERS","طلباتي"))
+        st.markdown('<div class="ver-account-section">'+html.escape(local("MY ORDERS","طلباتي"))+'</div><div class="ver-account-rule"></div>',unsafe_allow_html=True)
         try:
             orders=auth.my_orders(st.session_state.customer_token)
+            fulfillment_labels={
+                "new":local("Order received","تم استلام الطلب"),
+                "preparing":local("Preparing","قيد التجهيز"),
+                "shipped":local("Shipped","تم الشحن"),
+                "delivered":local("Delivered","تم التوصيل"),
+                "cancelled":local("Cancelled","ملغي")}
+            payment_labels={
+                "awaiting_verification":local("Awaiting payment selection","بانتظار اختيار الدفع"),
+                "ziina_pending":local("Ziina verification pending","بانتظار التحقق من زينة"),
+                "cod_pending":local("Cash on delivery","الدفع عند الاستلام"),
+                "paid_verified":local("Payment verified","تم التحقق من الدفع"),
+                "instagram_pending":local("Transfer pending","التحويل قيد الانتظار"),
+                "failed":local("Payment not verified","لم يتم تأكيد الدفع"),
+                "refunded":local("Refunded","تم الاسترجاع")}
             if not orders:
                 st.caption(local("No account-linked orders yet. Guest orders are not automatically linked.", "لا توجد طلبات مرتبطة بالحساب بعد. الطلبات السابقة كضيف لا ترتبط تلقائياً."))
             for order in orders:
-                st.markdown(f'<div class="checkout-notice"><strong>{html.escape(order["order_id"])}</strong> · AED {order["total"]}<div>{html.escape(order["fulfillment_status"])} · {html.escape(order["payment_status"])}</div></div>',unsafe_allow_html=True)
+                oid=html.escape(str(order.get("order_id","")))
+                total=html.escape(str(order.get("total","—")))
+                fulfillment=html.escape(fulfillment_labels.get(order.get("fulfillment_status"),local("Contact us for status","يرجى التواصل لمعرفة الحالة")))
+                payment=html.escape(payment_labels.get(order.get("payment_status"),local("Payment status unavailable","حالة الدفع غير متاحة")))
+                st.markdown(
+                    '<div class="ver-order-card"><div class="ver-order-top">'
+                    '<div><div class="ver-account-kicker">'+html.escape(local("ORDER NUMBER","رقم الطلب"))+'</div>'
+                    '<div class="ver-order-id">'+oid+'</div></div>'
+                    '<div class="ver-order-price">AED '+total+'</div></div>'
+                    '<div class="ver-order-meta"><span class="ver-order-pill">'+fulfillment+'</span>'
+                    '<span class="ver-order-pill">'+payment+'</span></div></div>',
+                    unsafe_allow_html=True)
         except Exception:
             st.warning(local("Order history is temporarily unavailable.","سجل الطلبات غير متاح حالياً."))
+        st.markdown('<div class="ver-account-section">'+html.escape(local("ACCOUNT SETTINGS","إعدادات الحساب"))+'</div><div class="ver-account-rule"></div>',unsafe_allow_html=True)
+        if st.button(local("SIGN OUT","تسجيل الخروج"),key="customer_signout"):
+            for key in ("customer_token","customer_id","customer_email","customer_profile","last_synced_cart"):
+                st.session_state.pop(key,None)
+            st.rerun()
+
 elif nav == "tracking":
     st.markdown(f'<div class="section-title">{local("TRACK YOUR ORDER", "تتبع الطلب")}</div>',unsafe_allow_html=True)
     st.markdown(f'<div class="copy">{local("Check the latest status of your HOUSE OF VÈR order.", "تابع آخر تحديث لحالة طلبك من HOUSE OF VÈR.")}</div>',unsafe_allow_html=True)
