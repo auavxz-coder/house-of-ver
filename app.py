@@ -160,6 +160,25 @@ div.stButton > button{min-height:44px}
 }
 .stApp [data-testid="stSegmentedControl"] button:hover{background:#f7ead7!important}
 @media(max-width:650px){.stApp [data-testid="stSegmentedControl"] button{font-size:13px!important;padding:5px 5px!important}}
+
+/* Text-only gold language links; override the global button theme */
+.stApp .st-key-lang_en button,.stApp .st-key-lang_ar button,
+.stApp div.stButton.st-key-lang_en>button,.stApp div.stButton.st-key-lang_ar>button{
+background:transparent!important;background-color:transparent!important;
+border:0!important;border-radius:0!important;box-shadow:none!important;
+padding:2px 4px!important;min-height:32px!important;height:32px!important;
+color:#986821!important;-webkit-text-fill-color:#986821!important;
+font-family:'Cormorant Garamond','Amiri',serif!important;font-size:16px!important;
+letter-spacing:.03em!important
+}
+.stApp .st-key-lang_en button p,.stApp .st-key-lang_ar button p,
+.stApp .st-key-lang_en button span,.stApp .st-key-lang_ar button span{
+color:#986821!important;-webkit-text-fill-color:#986821!important;font-size:16px!important
+}
+.stApp .st-key-lang_en button:hover,.stApp .st-key-lang_ar button:hover{background:transparent!important;color:#79521e!important}
+.stApp .st-key-lang_en button:focus,.stApp .st-key-lang_ar button:focus{box-shadow:none!important;outline:none!important}
+
+@media(max-width:650px){.stApp .st-key-lang_en button,.stApp .st-key-lang_ar button{font-size:13px!important;padding:0!important}}
 </style>""", unsafe_allow_html=True)
 
 if "cart_qty" not in st.session_state:
@@ -170,15 +189,22 @@ if "page" not in st.session_state:
 def go_to(destination):
     st.session_state.page = destination
 
-nav_left, nav_lang, nav_right = st.columns([4, 1.3, 1.2], gap="small")
-with nav_lang:
-    chosen_lang = st.segmented_control("Language / اللغة", ["EN", "عربي"], default="عربي" if ar else "EN", label_visibility="collapsed", key="language_toggle")
-    st.session_state.lang = "العربية" if chosen_lang == "عربي" else "English"
-    ar = st.session_state.lang == "العربية"
+def set_language(value):
+    st.session_state.lang = value
+
+nav_left, nav_en, nav_ar, nav_right = st.columns([5, .65, .75, 1.3], gap="small")
+with nav_en:
+    st.button("EN", key="lang_en", on_click=set_language, args=("English",), use_container_width=True)
+with nav_ar:
+    st.button("عربي", key="lang_ar", on_click=set_language, args=("العربية",), use_container_width=True)
 with nav_right:
     with st.popover("☰  MENU" if not ar else "☰  القائمة", use_container_width=True):
         st.button(local("PERFUME", "العطر"), key="menu_perfume", use_container_width=True, on_click=go_to, args=("shop",))
         st.button(local("CART & PAYMENT", "السلة والدفع") + f" ({st.session_state.cart_qty})", key="menu_cart", use_container_width=True, on_click=go_to, args=("cart",))
+if ar:
+    st.markdown('<style>.stApp .st-key-lang_ar button{border-bottom:1px solid #986821!important}</style>',unsafe_allow_html=True)
+else:
+    st.markdown('<style>.stApp .st-key-lang_en button{border-bottom:1px solid #986821!important}</style>',unsafe_allow_html=True)
 nav = st.session_state.page
 
 if nav == "shop":
