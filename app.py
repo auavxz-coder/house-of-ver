@@ -124,6 +124,15 @@ div.stButton > button{min-height:44px}
 .stApp div.stButton>button p,.stApp div.stButton>button span{color:#fffaf2!important}
 .stApp div.stButton>button:hover{background:#765122!important;color:white!important}
 .stApp [data-testid="stRadio"] label{background:transparent!important}
+
+/* Elegant cream-and-gold language picker and right-aligned menu */
+.stApp [data-testid="stSelectbox"] label p{color:#986821!important;font-family:'Cormorant Garamond','Amiri',serif!important;letter-spacing:.06em;font-size:15px!important}
+.stApp [data-testid="stSelectbox"] [data-baseweb="select"]>div{background:#fff5e9!important;border:1px solid #c7a578!important;border-radius:2px!important;box-shadow:none!important;color:#7e5a2a!important}
+.stApp [data-testid="stSelectbox"] [data-baseweb="select"] span{color:#7e5a2a!important}
+.stApp [data-testid="stPopover"] button{background:transparent!important;border:0!important;box-shadow:none!important;color:#986821!important;font-family:'Cormorant Garamond','Amiri',serif!important;letter-spacing:.1em!important;font-size:18px!important}
+.stApp [data-testid="stPopover"] button p{color:#986821!important}
+.stApp [data-testid="stPopover"] button:hover{background:#f8ebd9!important}
+@media(max-width:650px){.stApp [data-testid="stPopover"] button{font-size:15px!important}.stApp [data-testid="stSelectbox"]{max-width:170px;margin-left:auto}}
 </style>""", unsafe_allow_html=True)
 
 if "cart_qty" not in st.session_state:
@@ -131,8 +140,15 @@ if "cart_qty" not in st.session_state:
 if "page" not in st.session_state:
     st.session_state.page = "shop"
 
-nav = st.radio(local("Explore", "تصفح"), ["shop", "cart"], format_func=lambda v: (local("Perfume", "العطر") if v == "shop" else local("Cart & payment", "السلة والدفع") + f" ({st.session_state.cart_qty})"), horizontal=True, label_visibility="collapsed", index=0 if st.session_state.page == "shop" else 1)
-st.session_state.page = nav
+def go_to(destination):
+    st.session_state.page = destination
+
+nav_left, nav_right = st.columns([5, 1])
+with nav_right:
+    with st.popover("☰  MENU" if not ar else "☰  القائمة", use_container_width=True):
+        st.button(local("PERFUME", "العطر"), key="menu_perfume", use_container_width=True, on_click=go_to, args=("shop",))
+        st.button(local("CART & PAYMENT", "السلة والدفع") + f" ({st.session_state.cart_qty})", key="menu_cart", use_container_width=True, on_click=go_to, args=("cart",))
+nav = st.session_state.page
 
 if nav == "shop":
     st.markdown(f'<div class="bottle"><img src="{perfume}" alt="VÈR perfume bottle"></div>', unsafe_allow_html=True)
