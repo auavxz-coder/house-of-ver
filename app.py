@@ -429,12 +429,49 @@ elif nav == "tracking":
                 if not found:
                     st.warning(local("No matching order was found. Check the details or contact us on Instagram.", "لم يتم العثور على طلب مطابق. يرجى مراجعة البيانات أو التواصل معنا عبر الإنستغرام."))
                 else:
-                    fulfillment={"new":local("Received", "تم استلام الطلب"),"preparing":local("Preparing", "قيد التجهيز"),"shipped":local("Shipped", "تم الشحن"),"delivered":local("Delivered", "تم التوصيل"),"cancelled":local("Cancelled", "ملغي")}
-                    payments={"awaiting_verification":local("Awaiting payment choice", "بانتظار اختيار الدفع"),"ziina_pending":local("Awaiting Ziina verification", "بانتظار التحقق من زينة"),"cod_pending":local("Cash on delivery", "الدفع عند الاستلام"),"paid_verified":local("Payment verified", "تم التحقق من الدفع"),"instagram_pending":local("Instagram transfer pending", "بانتظار التحويل"),"failed":local("Payment not verified", "لم يتم تأكيد الدفع"),"refunded":local("Refunded", "تم الاسترجاع")}
-                    st.markdown(f'<div class="checkout-notice"><strong>{html.escape(found["order_id"])}</strong></div>',unsafe_allow_html=True)
-                    st.write(local("Order status", "حالة الطلب")+": "+fulfillment.get(found["fulfillment_status"],found["fulfillment_status"]))
-                    st.write(local("Payment status", "حالة الدفع")+": "+payments.get(found["payment_status"],found["payment_status"]))
-                    st.caption(local("Order updates are entered manually by HOUSE OF VÈR.", "يتم تحديث حالة الطلب يدوياً من قبل HOUSE OF VÈR."))
+                    fulfillment = found.get("fulfillment_status","new")
+                    payment = found.get("payment_status","awaiting_verification")
+                    steps = [
+                        (local("Order received", "تم استلام الطلب"),local("Your order request has been saved.", "تم تسجيل طلبك في النظام.")),
+                        (local("Preparing", "قيد التجهيز"),local("Your perfume is being prepared.", "طلبك قيد التجهيز.")),
+                        (local("Shipped", "تم الشحن"),local("Your order is on its way.", "طلبك في الطريق.")),
+                        (local("Delivered", "تم التوصيل"),local("Your order has been delivered.", "تم توصيل الطلب."))
+                    ]
+                    positions={"new":0,"preparing":1,"shipped":2,"delivered":3}
+                    payment_labels={
+                        "awaiting_verification":local("Awaiting payment selection", "بانتظار اختيار الدفع"),
+                        "ziina_pending":local("Ziina payment awaiting verification", "دفع زينة بانتظار التحقق"),
+                        "cod_pending":local("Cash on delivery — payment due on delivery", "الدفع عند الاستلام — المبلغ مستحق عند التوصيل"),
+                        "paid_verified":local("Payment verified", "تم التحقق من الدفع"),
+                        "instagram_pending":local("Instagram transfer awaiting verification", "التحويل عبر الإنستغرام بانتظار التحقق"),
+                        "failed":local("Payment could not be verified", "تعذر التحقق من الدفع"),
+                        "refunded":local("Refunded", "تم استرجاع المبلغ")
+                    }
+                    st.markdown(f'<div class="checkout-notice" style="text-align:center"><strong>{html.escape(found["order_id"])}</strong></div>',unsafe_allow_html=True)
+                    st.markdown("#### "+local("Payment", "الدفع"))
+                    st.markdown('<div style="padding:13px 17px;border:1px solid #d6b98c;border-radius:7px;background:#fff8ef;color:#65482c">'+html.escape(payment_labels.get(payment,local("Contact the store for payment status", "يرجى التواصل مع المتجر لمعرفة حالة الدفع")))+'</div>',unsafe_allow_html=True)
+                    st.markdown("#### "+local("Order journey", "مراحل الطلب"))
+                    if fulfillment=="cancelled":
+                        st.error(local("This order was cancelled. Please contact HOUSE OF VÈR for assistance.", "تم إلغاء هذا الطلب. يرجى التواصل مع HOUSE OF VÈR للمساعدة."))
+                    elif fulfillment in positions:
+                        current=positions[fulfillment]
+                        for idx,(label,description) in enumerate(steps):
+                            reached=idx<=current
+                            marker="✓" if idx<current else "●" if idx==current else "○"
+                            bg="#f4e6d0" if reached else "#fff9f0"
+                            border="#aa7b38" if reached else "#dfcfb8"
+                            color="#644522" if reached else "#8c806f"
+                            st.markdown(
+                                '<div style="display:flex;align-items:flex-start;gap:13px;'
+                                'border:1px solid '+border+';border-radius:8px;'
+                                'background:'+bg+';padding:13px 16px;margin:8px 0;color:'+color+'">'
+                                '<span style="font-size:23px;min-width:25px" aria-hidden="true">'+marker+'</span>'
+                                '<div><div style="font-weight:700;font-size:17px">'+html.escape(label)+'</div>'
+                                '<div style="font-size:14px;margin-top:3px">'+html.escape(description if reached else local("Not reached yet", "لم تصل هذه المرحلة بعد"))+'</div></div></div>',
+                                unsafe_allow_html=True)
+                    else:
+                        st.info(local("Please contact HOUSE OF VÈR for an update.", "يرجى التواصل مع HOUSE OF VÈR لمعرفة حالة الطلب."))
+                    st.caption(local("Statuses are updated manually by HOUSE OF VÈR. Payment proof does not confirm payment.", "يتم تحديث الحالات يدوياً من قبل HOUSE OF VÈR. صورة إثبات الدفع لا تعني تأكيد وصول المبلغ."))
             except Exception:
                 st.error(local("Order tracking is temporarily unavailable. Please try again later.", "خدمة التتبع غير متاحة حالياً. يرجى المحاولة لاحقاً."))
 elif nav == "shop":
