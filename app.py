@@ -488,22 +488,29 @@ elif nav == "payment":
             else:
                 links = {270:"https://pay.ziina.com/Sulaiman97/XGrEI3duJ?source=app",290:"https://pay.ziina.com/Sulaiman97/kjDR_i_KW?source=app"}
                 if base_total in links:
-                    st.link_button(local("PAY WITH ZIINA", "الدفع عبر زينة"), links[base_total], use_container_width=True)
-                    st.caption(local("After paying, return here and upload your screenshot. Check the recipient and amount.", "بعد الدفع يرجى العودة إلى هذه الصفحة ورفع صورة الدفع، مع التأكد من اسم المستلم والمبلغ."))
+                    st.link_button(local("STEP 1 — OPEN ZIINA PAYMENT LINK", "الخطوة ١ — فتح رابط الدفع في زينة"), links[base_total], use_container_width=True)
+                    st.caption(local("Check the recipient and exact amount before paying. After visiting Ziina, return to this page.", "يرجى التأكد من المستلم والمبلغ الصحيح قبل الدفع، ثم العودة إلى هذه الصفحة."))
+                    if st.session_state.get("ziina_returned_order") != oid:
+                        if st.button(local("I OPENED ZIINA AND RETURNED", "فتحت رابط زينة ورجعت للموقع"), use_container_width=True):
+                            st.session_state.ziina_returned_order = oid
+                            st.rerun()
+                        st.info(local("Step 2 — After opening Ziina, return here and select the button above to enable the screenshot upload.", "الخطوة ٢ — بعد فتح رابط زينة، يرجى العودة والضغط على الزر أعلاه لإظهار رفع الصورة."))
+                    else:
+                        st.markdown("#### " + local("STEP 2 — UPLOAD PAYMENT SCREENSHOT", "الخطوة ٢ — رفع صورة إثبات الدفع"))
+                        with st.form("payment_proof_form"):
+                            proof = st.file_uploader(local("Payment screenshot (required)", "صورة الدفع (إجبارية)"), type=["png","jpg","jpeg"])
+                            submitted = st.form_submit_button(local("SUBMIT PAYMENT PROOF", "إرسال إثبات الدفع"))
+                        if submitted:
+                            try:
+                                upload_payment_proof(oid, proof)
+                                st.session_state.proof_uploaded_for = oid
+                                st.rerun()
+                            except ValueError as exc:
+                                st.error(str(exc))
+                            except Exception:
+                                st.error(local("Could not upload screenshot. Please retry.", "تعذر رفع الصورة. يرجى المحاولة مرة أخرى."))
                 else:
                     st.warning(local("Contact us on Instagram for the correct payment link.", "يرجى التواصل معنا عبر إنستغرام للحصول على رابط الدفع الصحيح."))
-                with st.form("payment_proof_form"):
-                    proof = st.file_uploader(local("Payment screenshot (required)", "صورة الدفع (إجبارية)"), type=["png","jpg","jpeg"])
-                    submitted = st.form_submit_button(local("SUBMIT PAYMENT PROOF", "إرسال إثبات الدفع"))
-                if submitted:
-                    try:
-                        upload_payment_proof(oid, proof)
-                        st.session_state.proof_uploaded_for = oid
-                        st.rerun()
-                    except ValueError as exc:
-                        st.error(str(exc))
-                    except Exception:
-                        st.error(local("Could not upload screenshot. Please retry.", "تعذر رفع الصورة. يرجى المحاولة مرة أخرى."))
         else:
             st.info(local("This order is already being processed. Contact the store for assistance.", "هذا الطلب قيد المعالجة. يرجى التواصل معنا للمساعدة."))
 
