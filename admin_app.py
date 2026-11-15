@@ -1,5 +1,6 @@
 import hmac
 import json
+import urllib.error
 import urllib.parse
 import urllib.request
 import streamlit as st
@@ -54,8 +55,20 @@ if st.button("Sign out"):
 
 try:
     orders=query("GET","orders?select=*&order=created_at.desc&limit=200")
+except urllib.error.HTTPError as exc:
+    status = exc.code
+    if status in (401, 403):
+        st.error("Supabase rejected access (HTTP " + str(status) + "). Check the admin app's private API key and database permissions.")
+    elif status == 404:
+        st.error("Orders API endpoint not found (HTTP 404). Check that the orders table is available through the Data API.")
+    else:
+        st.error("Supabase returned HTTP " + str(status) + ". Check API settings and table access.")
+    st.stop()
+except RuntimeError:
+    st.error("Missing Supabase connection settings in this admin app's Secrets.")
+    st.stop()
 except Exception:
-    st.error("Could not load orders. Check Supabase credentials and table access.")
+    st.error("Unable to connect to Supabase. Check the project URL and service availability.")
     st.stop()
 
 col1,col2,col3=st.columns(3)
