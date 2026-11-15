@@ -304,10 +304,25 @@ box-shadow:0 0 0 1000px #fffaf4 inset!important;
 @media(max-width:650px){.thank-card{padding:25px 12px 20px;border-width:4px}.thank-star{font-size:48px}.thank-social{margin-top:28px}.thank-clouds{height:70px;margin:10px -12px -20px}.thank-clouds .cloud{height:75px;bottom:-48px}}
 </style>""", unsafe_allow_html=True)
 
-def render_payment_thank_you(preview=False, proof_received=False, cod_received=False):
-    """Thank-you design; payment is never marked paid by a screenshot."""
-    label = (local("PAYMENT SCREENSHOT RECEIVED — AWAITING VERIFICATION", "تم استلام إثبات الدفع — بانتظار التحقق") if proof_received else local("DESIGN PREVIEW — NOT A PAYMENT CONFIRMATION", "معاينة التصميم — ليست تأكيداً للدفع") if preview else local("PAYMENT CONFIRMED", "تم تأكيد الدفع"))
-    st.markdown(f'<div class="thank-preview">{html.escape(label)}</div>', unsafe_allow_html=True)
+def render_payment_thank_you(preview=False, proof_received=False, cod_received=False, instagram_received=False):
+    """Show the relevant pending-confirmation notice before the thank-you card."""
+    if proof_received:
+        message = local(
+            "Thank you! We received your payment screenshot. Your order is NOT confirmed yet. HOUSE OF VÈR will check the amount actually received in Ziina. Only after payment is verified will we contact you through Instagram, email, or phone to confirm your order. Please keep your order number.",
+            "شكراً لج! استلمنا صورة إثبات الدفع، لكن طلبج مب مؤكد للحين. بنتأكد أول من المبلغ اللي وصلنا فعلياً في زينة، وعقب التأكد من الدفع بنتواصل وياج عن طريق الإنستغرام أو الإيميل أو رقم التلفون لتأكيد الطلب. احتفظي برقم الطلب.")
+    elif cod_received:
+        message = local(
+            "Thank you! We received your cash-on-delivery order. Your order is NOT confirmed yet. We will contact you through Instagram, email, or phone to confirm delivery. The full amount, including the AED 5 cash-on-delivery fee, is payable upon delivery.",
+            "شكراً لج! استلمنا طلب الدفع عند الاستلام، لكن الطلب مب مؤكد للحين. بنتواصل وياج عن طريق الإنستغرام أو الإيميل أو التلفون لتأكيد التوصيل. المبلغ الكامل شامل ٥ دراهم رسوم الدفع عند الاستلام يُدفع وقت التوصيل.")
+    elif instagram_received:
+        message = local(
+            "Thank you! Your order request has been received but is NOT confirmed. Please contact HOUSE OF VÈR on Instagram to request bank transfer details. Once the transfer is received and verified, we will contact you by Instagram, email, or phone to confirm your order.",
+            "شكراً لج! استلمنا طلبج لكنه مب مؤكد للحين. تواصلي ويانا على الإنستغرام عشان نعطيج تفاصيل الحساب للتحويل. عقب ما نتأكد من وصول المبلغ بنتواصل وياج عن طريق الإنستغرام أو الإيميل أو التلفون لتأكيد الطلب.")
+    else:
+        message = local("DESIGN PREVIEW — NOT A PAYMENT CONFIRMATION", "معاينة التصميم — ليست تأكيداً للدفع")
+    st.markdown(f'<div class="checkout-notice">{html.escape(message)}</div>', unsafe_allow_html=True)
+    if proof_received:
+        st.caption(local("A screenshot alone does not confirm successful payment.", "صورة الدفع بروحها ما تعتبر تأكيد لوصول المبلغ."))
     st.markdown("""
     <div class="thank-card">
       <div class="thank-star">✨</div>
@@ -319,11 +334,6 @@ def render_payment_thank_you(preview=False, proof_received=False, cod_received=F
       <div class="thank-clouds" aria-hidden="true"><span class="cloud cloud-one"></span><span class="cloud cloud-two"></span><span class="cloud cloud-three"></span></div>
     </div>
     """, unsafe_allow_html=True)
-    if cod_received:
-        st.markdown(f'<div class="checkout-notice">{html.escape(local("Thank you! We received your cash-on-delivery order. Your order is NOT confirmed yet. We will contact you through Instagram, email or phone to confirm delivery. Payment of the full amount, including AED 5 cash-on-delivery fee, is due upon delivery.", "شكراً لج! استلمنا طلب الدفع عند الاستلام، لكن الطلب مب مؤكد للحين. بنتواصل وياج عن طريق الإنستغرام أو الإيميل أو التلفون لتأكيد التوصيل. المبلغ الكامل شامل ٥ دراهم رسوم الدفع عند الاستلام يُدفع وقت التوصيل."))}</div>', unsafe_allow_html=True)
-    elif proof_received:
-        st.markdown(f'<div class="checkout-notice">{html.escape(local("Thank you! We received your payment screenshot. Your order is NOT confirmed yet. HOUSE OF VÈR will check the amount actually received in Ziina. Only after payment is verified will we contact you through Instagram, email, or phone to confirm your order. Please keep your order number.", "شكراً لج! استلمنا صورة إثبات الدفع، لكن طلبج مب مؤكد للحين. بنتأكد أول من المبلغ اللي وصلنا فعلياً في زينة، وعقب التأكد من الدفع بنتواصل وياج عن طريق الإنستغرام أو الإيميل أو رقم التلفون لتأكيد الطلب. احتفظي برقم الطلب."))}</div>', unsafe_allow_html=True)
-        st.caption(local("A screenshot is not proof of successful payment.", "صورة الدفع بروحها ما تعتبر تأكيد لوصول المبلغ."))
 
 
 # Never show a real payment success message from a query parameter or button click.
@@ -463,6 +473,7 @@ elif nav == "payment":
             st.code(message, language=None)
             st.link_button(local("OPEN INSTAGRAM CHAT", "فتح محادثة الإنستغرام"), "https://ig.me/m/houseofver_", use_container_width=True)
             st.caption(local("Instagram does not reliably support prefilled direct messages from websites. Paste the copied details into the chat.", "الإنستغرام ما يضمن تعبئة الرسالة تلقائياً من الموقع، فالصقي التفاصيل في المحادثة."))
+            render_payment_thank_you(instagram_received=True)
         elif status == "ziina_pending":
             st.markdown("### " + local("Ziina payment", "الدفع عبر زينة") + " — AED " + str(saved_payment["total"]))
             if st.session_state.get("proof_uploaded_for") == oid:
