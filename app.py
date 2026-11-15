@@ -52,7 +52,7 @@ header[data-testid="stHeader"]{background:transparent}
 st.markdown('<div style="text-align:center;padding:20px 8px 8px"><div style="font-family:Cormorant Garamond,serif;font-size:clamp(36px,7vw,68px);color:#986821;letter-spacing:.05em">HOUSE OF VÈR</div><div style="font-family:Cormorant Garamond,serif;letter-spacing:.19em;color:#9a722e;font-size:clamp(12px,2vw,19px)">THE ESSENCE OF PRESENCE</div></div>',unsafe_allow_html=True)
 
 st.markdown(f'<div class="bottle"><img src="{perfume}" alt="VÈR perfume bottle" /></div>',unsafe_allow_html=True)
-st.markdown(f'<div class="price">AED 225</div><div class="muted">{t("size")}</div>',unsafe_allow_html=True)
+st.markdown(f'<div class="price">AED 240</div><div class="muted">{t("size")}</div>',unsafe_allow_html=True)
 st.markdown(f'<a class="order" href="https://ig.me/m/houseofver_" target="_blank" rel="noopener noreferrer">{t("order")} ↗</a><a class="secondary" href="https://www.instagram.com/houseofver_/" target="_blank" rel="noopener noreferrer">{t("profile")}</a>',unsafe_allow_html=True)
 st.markdown(f'<div class="fine"></div><div class="section-title">{t("about_title")}</div><div class="copy {'rtl' if ar else ''}">{t("about")}</div>',unsafe_allow_html=True)
 st.markdown(f'<div class="fine"></div><div class="section-title">{t("delivery_title")}</div><div class="copy {'rtl' if ar else ''}">{t("delivery")}</div>',unsafe_allow_html=True)
