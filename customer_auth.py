@@ -61,3 +61,7 @@ def save_profile(token, user_id, **fields):
 
 def my_orders(token):
     return _request("/rest/v1/rpc/my_order_summaries","POST",{},token=token)
+
+def my_order_details(token, order_id):
+    """Only the signed-in owner can retrieve order details through a scoped RPC."""
+    return _request("/rest/v1/rpc/my_order_details", "POST", {"requested_order_id":order_id},token=token)

@@ -535,6 +535,16 @@ elif nav == "account":
                 "instagram_pending":local("Transfer pending","التحويل قيد الانتظار"),
                 "failed":local("Payment not verified","لم يتم تأكيد الدفع"),
                 "refunded":local("Refunded","تم الاسترجاع")}
+            st.markdown('<div class="ver-account-section">'+html.escape(local("ACCOUNT OVERVIEW","نظرة عامة على الحساب"))+'</div><div class="ver-account-rule"></div>',unsafe_allow_html=True)
+            total_orders=len(orders)
+            active_orders=sum(o.get("fulfillment_status") not in ("delivered","cancelled") for o in orders)
+            last_order=orders[0].get("order_id") if orders else None
+            m1,m2,m3=st.columns(3,gap="small")
+            m1.metric(local("TOTAL ORDERS","إجمالي الطلبات"),total_orders)
+            m2.metric(local("ACTIVE ORDERS","الطلبات الجارية"),active_orders)
+            m3.metric(local("SAVED BAG","السلة المحفوظة"),int(st.session_state.get("cart_qty",0)))
+            if last_order:
+                st.caption(local("Latest order: ","آخر طلب: ")+str(last_order))
             if not orders:
                 st.caption(local("No account-linked orders yet. Guest orders are not automatically linked.", "لا توجد طلبات مرتبطة بالحساب بعد. الطلبات السابقة كضيف لا ترتبط تلقائياً."))
             for order in orders:
@@ -558,6 +568,24 @@ elif nav == "account":
                     '<div class="ver-order-meta"><span class="ver-order-pill">'+fulfillment+'</span>'
                     '<span class="ver-order-pill">'+payment+'</span></div></div>',
                     unsafe_allow_html=True)
+                with st.expander(local("VIEW ORDER DETAILS","عرض تفاصيل الطلب")+" · "+str(order.get("order_id",""))):
+                    try:
+                        details=auth.my_order_details(st.session_state.customer_token,str(order.get("order_id","")))
+                        if not details or not isinstance(details,dict):
+                            st.warning(local("Details are unavailable for this order.","تفاصيل هذا الطلب غير متاحة."))
+                        else:
+                            st.markdown("**"+local("VÈR Eau de Parfum · 100 ml","عطر ڤير · ١٠٠ مل")+"**")
+                            st.write(local("Quantity","الكمية")+": "+str(details.get("quantity","—")))
+                            st.write(local("Perfume subtotal","مجموع العطر")+": AED "+str(details.get("subtotal","—")))
+                            st.write(local("Delivery","التوصيل")+": AED "+str(details.get("delivery_fee","—")))
+                            st.write(local("Total","الإجمالي")+": AED "+str(details.get("total","—")))
+                            st.write(local("Emirate","الإمارة")+": "+str(details.get("emirate","—")))
+                            st.write(local("Area","المنطقة")+": "+str(details.get("area","—")))
+                            st.write(local("Payment status","حالة الدفع")+": "+payment_labels.get(details.get("payment_status"),local("Contact the store","يرجى التواصل مع المتجر")))
+                            st.write(local("Order status","حالة الطلب")+": "+fulfillment_labels.get(details.get("fulfillment_status"),local("Contact the store","يرجى التواصل مع المتجر")))
+                            st.caption(local("Payment verification and order updates are handled by HOUSE OF VÈR.","التحقق من الدفع وتحديث الطلبات يتم من قبل HOUSE OF VÈR."))
+                    except Exception:
+                        st.warning(local("Order details are not enabled yet. The store must run the secure order-details SQL setup.","تفاصيل الطلب غير مفعّلة بعد. يجب تشغيل إعداد SQL الآمن لتفاصيل الطلبات."))
         except Exception:
             st.warning(local("Order history is temporarily unavailable.","سجل الطلبات غير متاح حالياً."))
         st.markdown('<div class="ver-account-section">'+html.escape(local("ACCOUNT SETTINGS","إعدادات الحساب"))+'</div><div class="ver-account-rule"></div>',unsafe_allow_html=True)
