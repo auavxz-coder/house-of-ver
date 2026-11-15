@@ -413,7 +413,19 @@ elif nav == "story":
     st.markdown(f'<a class="order" href="https://ig.me/m/houseofver_" target="_blank" rel="noopener noreferrer">{local("DISCOVER VÈR ON INSTAGRAM", "اكتشف ڤير عبر إنستغرام")}</a>', unsafe_allow_html=True)
 elif nav == "account":
     st.markdown(f'<div class="section-title">{local("MY ACCOUNT", "حسابي")}</div>',unsafe_allow_html=True)
-    st.caption(local("Accounts are optional. You can still order as a guest.", "الحساب اختياري ويمكن إكمال الطلب كضيف."))
+    st.markdown(
+        '<div style="background:linear-gradient(115deg,#f3e2c9,#fff9f0 68%,#ead0a5);'
+        'border:1px solid #d7b98b;border-radius:14px;padding:24px 28px;margin:14px 0 24px;'
+        'text-align:center;box-shadow:0 8px 26px rgba(88,60,30,.06)">'
+        '<div style="font-family:Georgia,serif;font-size:12px;letter-spacing:.22em;color:#a07840">'
+        'HOUSE OF VÈR</div>'
+        '<div style="font-family:Georgia,serif;font-size:clamp(24px,4vw,36px);'
+        'color:#64452a;margin:13px 0">'
+        +html.escape(local("YOUR PRIVATE WORLD OF VÈR","عالم ڤير الخاص بك"))+'</div>'
+        '<div style="font-family:Georgia,serif;color:#80664a;font-size:16px;line-height:1.7">'
+        +html.escape(local("A more personal way to shop, save your bag, and revisit your orders.", "تجربة تسوق خاصة تتيح حفظ السلة والعودة إلى طلباتك بسهولة."))+'</div></div>',
+        unsafe_allow_html=True)
+    st.caption(local("Accounts are optional. Guest checkout remains available.", "الحساب اختياري، ويمكن إكمال الطلب كضيف."))
     try:
         configured=bool(st.secrets.get("SUPABASE_PUBLISHABLE_KEY",""))
     except Exception:
@@ -556,7 +568,17 @@ elif nav == "account":
 
 elif nav == "tracking":
     st.markdown(f'<div class="section-title">{local("TRACK YOUR ORDER", "تتبع الطلب")}</div>',unsafe_allow_html=True)
-    st.markdown(f'<div class="copy">{local("Check the latest status of your HOUSE OF VÈR order.", "تابع آخر تحديث لحالة طلبك من HOUSE OF VÈR.")}</div>',unsafe_allow_html=True)
+    st.markdown(
+        '<div style="background:linear-gradient(115deg,#f4e5cf,#fff9f0 68%,#ead0a5);'
+        'border:1px solid #d7b98b;border-radius:12px;padding:23px 26px;margin:15px 0 24px;'
+        'color:#65462b;box-shadow:0 8px 25px rgba(88,60,30,.06)">'
+        '<div style="font-family:Georgia,serif;letter-spacing:.15em;font-size:12px;color:#9b743c;margin-bottom:12px">'
+        +html.escape(local("GUEST ORDER TRACKING","تتبع طلبات الضيوف"))+'</div>'
+        '<div style="font-family:Georgia,serif;font-size:clamp(19px,3vw,25px);line-height:1.5">'
+        +html.escape(local("Continued as a guest? Track your HOUSE OF VÈR order here.", "أكملت الطلب كضيف؟ تابع حالة طلبك من HOUSE OF VÈR هنا."))+'</div>'
+        '<div style="font-size:14px;line-height:1.6;margin-top:12px">'
+        +html.escape(local("Enter your order number, email and phone number used at checkout. Signed-in customers can view their orders in My Account.", "أدخل رقم الطلب والبريد الإلكتروني ورقم الهاتف المستخدم عند الطلب. يمكن لأصحاب الحسابات متابعة طلباتهم من صفحة حسابي."))+'</div></div>',
+        unsafe_allow_html=True)
     with st.form("track_order_form"):
         track_id=st.text_input(local("Order number", "رقم الطلب"),placeholder="VER-XXXXXXXXXXXX",max_chars=20)
         track_email=st.text_input(local("Email used for the order", "البريد الإلكتروني المستخدم في الطلب"),max_chars=254)
