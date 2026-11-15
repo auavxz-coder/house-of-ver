@@ -29,7 +29,7 @@ copy={
  'delivery_title':('UAE DELIVERY','التوصيل داخل الإمارات'),
  'delivery':('Orders are arranged by Instagram direct message. Delivery availability, timing and fees are confirmed before your order is finalized.','يتم تنسيق الطلبات عبر رسائل إنستغرام. نؤكد توفر التوصيل وموعده ورسومه قبل تأكيد الطلب.'),
  'notice':('Orders are placed through Instagram messages. No card payments are taken on this website.','الطلبات تتم عبر رسائل إنستغرام، ولا يتم تحصيل أي مدفوعات بالبطاقة عبر هذا الموقع.'),
- 'contact':('STAY IN TOUCH','تواصلي معنا'),
+ 'contact':('STAY IN TOUCH','تواصل معنا'),
 }
 def t(k): return copy[k][1 if ar else 0]
 art=img_data('brand_art.png'); perfume=img_data('perfume.jpg')
@@ -309,15 +309,15 @@ def render_payment_thank_you(preview=False, proof_received=False, cod_received=F
     if proof_received:
         message = local(
             "Thank you! We received your payment screenshot. Your order is NOT confirmed yet. HOUSE OF VÈR will check the amount actually received in Ziina. Only after payment is verified will we contact you through Instagram, email, or phone to confirm your order. Please keep your order number.",
-            "شكراً لج! استلمنا صورة إثبات الدفع، لكن طلبج مب مؤكد للحين. بنتأكد أول من المبلغ اللي وصلنا فعلياً في زينة، وعقب التأكد من الدفع بنتواصل وياج عن طريق الإنستغرام أو الإيميل أو رقم التلفون لتأكيد الطلب. احتفظي برقم الطلب.")
+            "شكراً على طلبك! تم استلام صورة إثبات الدفع، لكن الطلب لم يتأكد بعد. سنتحقق أولاً من المبلغ المستلم في زينة، وبعد التحقق من الدفع سنتواصل عبر الإنستغرام أو البريد الإلكتروني أو الهاتف لتأكيد الطلب. يرجى الاحتفاظ برقم الطلب.")
     elif cod_received:
         message = local(
             "Thank you! We received your cash-on-delivery order. Your order is NOT confirmed yet. We will contact you through Instagram, email, or phone to confirm delivery. The full amount, including the AED 5 cash-on-delivery fee, is payable upon delivery.",
-            "شكراً لج! استلمنا طلب الدفع عند الاستلام، لكن الطلب مب مؤكد للحين. بنتواصل وياج عن طريق الإنستغرام أو الإيميل أو التلفون لتأكيد التوصيل. المبلغ الكامل شامل ٥ دراهم رسوم الدفع عند الاستلام يُدفع وقت التوصيل.")
+            "شكراً على طلبك! تم استلام طلب الدفع عند الاستلام، لكنه لم يتأكد بعد. سنتواصل عبر الإنستغرام أو البريد الإلكتروني أو الهاتف لتأكيد التوصيل. يُدفع المبلغ الكامل شاملاً ٥ دراهم رسوم الدفع عند الاستلام وقت التوصيل.")
     elif instagram_received:
         message = local(
             "Thank you! Your order request has been received but is NOT confirmed. Please contact HOUSE OF VÈR on Instagram to request bank transfer details. Once the transfer is received and verified, we will contact you by Instagram, email, or phone to confirm your order.",
-            "شكراً لج! استلمنا طلبج لكنه مب مؤكد للحين. تواصلي ويانا على الإنستغرام عشان نعطيج تفاصيل الحساب للتحويل. عقب ما نتأكد من وصول المبلغ بنتواصل وياج عن طريق الإنستغرام أو الإيميل أو التلفون لتأكيد الطلب.")
+            "شكراً على طلبك! تم استلام الطلب لكنه لم يتأكد بعد. يرجى التواصل معنا عبر الإنستغرام للحصول على تفاصيل التحويل. بعد التحقق من وصول المبلغ سنتواصل عبر الإنستغرام أو البريد الإلكتروني أو الهاتف لتأكيد الطلب.")
     else:
         message = local("DESIGN PREVIEW — NOT A PAYMENT CONFIRMATION", "معاينة التصميم — ليست تأكيداً للدفع")
     st.markdown(f'<div class="checkout-notice">{html.escape(message)}</div>', unsafe_allow_html=True)
@@ -420,7 +420,7 @@ elif nav == "shop":
         '<div style="background:#fff8ef;color:#65482c;border:1px solid #d6b98c;'
         'border-left:3px solid #a67b3c;border-radius:5px;padding:17px 18px;'
         'line-height:1.65;font-size:16px;margin:16px 0">'
-        + html.escape(local("Prefer to order via Instagram and pay by bank transfer? Contact us on Instagram to arrange your order and receive transfer details.", "تبين تطلبين عبر الإنستغرام وتدفعين بتحويل بنكي؟ تواصلي ويانا عشان نرتب الطلب ونعطيج تفاصيل التحويل."))
+        + html.escape(local("Prefer to order via Instagram and pay by bank transfer? Contact us on Instagram to arrange your order and receive transfer details.", "للطلب عبر الإنستغرام والدفع بتحويل بنكي، يرجى التواصل معنا لترتيب الطلب والحصول على تفاصيل التحويل."))
         + '</div>', unsafe_allow_html=True)
     st.markdown("""<style>
     [data-testid="stLinkButton"] a[href*="ig.me/m/houseofver_"] {
@@ -446,21 +446,21 @@ elif nav == "payment":
     oid = st.session_state.get("saved_order_id")
     base_total = st.session_state.get("order_base_total")
     if not oid or not base_total:
-        st.warning(local("Submit an order first.", "ارسلي الطلب أولاً."))
+        st.warning(local("Submit an order first.", "يرجى إرسال الطلب أولاً."))
     else:
         st.write(local("Order number", "رقم الطلب") + ": " + oid)
         try:
             saved_payment = payment_state(oid)
             status = saved_payment["payment_status"]
         except Exception:
-            st.error(local("Unable to load payment status. Please try again.", "تعذر تحميل حالة الدفع. حاولي مرة ثانية."))
+            st.error(local("Unable to load payment status. Please try again.", "تعذر تحميل حالة الدفع. يرجى المحاولة مرة أخرى."))
             st.stop()
         if status == "awaiting_verification":
-            method = st.radio(local("Choose payment method", "اختاري طريقة الدفع"), ["ziina", "cod"],
+            method = st.radio(local("Choose payment method", "اختر طريقة الدفع"), ["ziina", "cod"],
                 format_func=lambda x: local("Ziina online payment", "زينة - دفع إلكتروني") if x == "ziina" else local("Cash on delivery (+ AED 5)", "الدفع عند الاستلام (+٥ دراهم)"))
             payable = base_total + (5 if method == "cod" else 0)
             st.markdown("### " + local("Total", "الإجمالي") + ": AED " + str(payable))
-            st.caption(local("After confirmation, your payment method cannot be changed for this order.", "عقب التأكيد ما تقدرين تغيرين طريقة الدفع لنفس الطلب."))
+            st.caption(local("After confirmation, your payment method cannot be changed for this order.", "بعد التأكيد لا يمكن تغيير طريقة الدفع لنفس الطلب."))
             if st.button(local("CONFIRM PAYMENT METHOD", "تأكيد طريقة الدفع"), use_container_width=True):
                 try:
                     choose_payment(oid, method, base_total)
@@ -472,14 +472,14 @@ elif nav == "payment":
                     if isinstance(exc, urllib.error.HTTPError):
                         st.error(local("Payment setup error (HTTP ", "خطأ في حفظ الدفع (HTTP ") + str(exc.code) + "). " + local("Please contact the store.", "يرجى التواصل مع المتجر."))
                     else:
-                        st.error(local("Could not reach the payment database. Please retry.", "تعذر الاتصال بقاعدة بيانات الدفع. حاولي مرة ثانية."))
+                        st.error(local("Could not reach the payment database. Please retry.", "تعذر الاتصال بقاعدة بيانات الدفع. يرجى المحاولة مرة أخرى."))
         elif status == "cod_pending":
             st.markdown("### " + local("Cash on delivery", "الدفع عند الاستلام") + " — AED " + str(saved_payment["total"]))
             render_payment_thank_you(proof_received=False, cod_received=True)
             st.write(local("Order number", "رقم الطلب") + ": " + oid)
         elif status == "instagram_pending":
-            st.info(local("Existing Instagram transfer order. Contact us to complete it.", "هذا طلب تحويل سابق عبر الإنستغرام. تواصلي ويانا لاستكماله."))
-            st.link_button(local("CONTACT ON INSTAGRAM", "تواصلي عبر الإنستغرام"), "https://ig.me/m/houseofver_", use_container_width=True)
+            st.info(local("Existing Instagram transfer order. Contact us to complete it.", "هذا طلب تحويل سابق عبر الإنستغرام. يرجى التواصل معنا لاستكماله."))
+            st.link_button(local("CONTACT ON INSTAGRAM", "التواصل عبر الإنستغرام"), "https://ig.me/m/houseofver_", use_container_width=True)
         elif status == "ziina_pending":
             st.markdown("### " + local("Ziina payment", "الدفع عبر زينة") + " — AED " + str(saved_payment["total"]))
             if st.session_state.get("proof_uploaded_for") == oid:
@@ -489,9 +489,9 @@ elif nav == "payment":
                 links = {270:"https://pay.ziina.com/Sulaiman97/XGrEI3duJ?source=app",290:"https://pay.ziina.com/Sulaiman97/kjDR_i_KW?source=app"}
                 if base_total in links:
                     st.link_button(local("PAY WITH ZIINA", "الدفع عبر زينة"), links[base_total], use_container_width=True)
-                    st.caption(local("After paying, return here and upload your screenshot. Check the recipient and amount.", "عقب الدفع ارجعي هني وارفعي صورة الدفع. تأكدي من المستلم والمبلغ."))
+                    st.caption(local("After paying, return here and upload your screenshot. Check the recipient and amount.", "بعد الدفع يرجى العودة إلى هذه الصفحة ورفع صورة الدفع، مع التأكد من اسم المستلم والمبلغ."))
                 else:
-                    st.warning(local("Contact us on Instagram for the correct payment link.", "تواصلي ويانا عبر إنستغرام لرابط الدفع الصحيح."))
+                    st.warning(local("Contact us on Instagram for the correct payment link.", "يرجى التواصل معنا عبر إنستغرام للحصول على رابط الدفع الصحيح."))
                 with st.form("payment_proof_form"):
                     proof = st.file_uploader(local("Payment screenshot (required)", "صورة الدفع (إجبارية)"), type=["png","jpg","jpeg"])
                     submitted = st.form_submit_button(local("SUBMIT PAYMENT PROOF", "إرسال إثبات الدفع"))
@@ -503,9 +503,9 @@ elif nav == "payment":
                     except ValueError as exc:
                         st.error(str(exc))
                     except Exception:
-                        st.error(local("Could not upload screenshot. Please retry.", "تعذر رفع الصورة. حاولي مرة ثانية."))
+                        st.error(local("Could not upload screenshot. Please retry.", "تعذر رفع الصورة. يرجى المحاولة مرة أخرى."))
         else:
-            st.info(local("This order is already being processed. Contact the store for assistance.", "هذا الطلب قيد المعالجة. تواصلي ويانا للمساعدة."))
+            st.info(local("This order is already being processed. Contact the store for assistance.", "هذا الطلب قيد المعالجة. يرجى التواصل معنا للمساعدة."))
 
 else:
     st.markdown(f'<div class="section-title">{local("YOUR SHOPPING BAG", "سلة التسوق")}</div>', unsafe_allow_html=True)
@@ -555,7 +555,7 @@ else:
             st.session_state.page = "payment"
             st.rerun()
         else:
-            st.caption(local("After submitting, choose your payment method.", "عقب إرسال الطلب اختاري طريقة الدفع."))
+            st.caption(local("After submitting, choose your payment method.", "عقب إرسال الطلب اختر طريقة الدفع."))
 
         st.markdown(f'<div class="fine"></div><div class="copy">{local("Need help? Contact @houseofver_ on Instagram.", "للمساعدة تواصل معنا عبر إنستغرام @houseofver_")}</div>', unsafe_allow_html=True)
 
