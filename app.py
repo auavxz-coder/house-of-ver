@@ -179,6 +179,14 @@ color:#986821!important;-webkit-text-fill-color:#986821!important;font-size:16px
 .stApp .st-key-lang_en button:focus,.stApp .st-key-lang_ar button:focus{box-shadow:none!important;outline:none!important}
 
 @media(max-width:650px){.stApp .st-key-lang_en button,.stApp .st-key-lang_ar button{font-size:13px!important;padding:0!important}}
+
+/* Language selector: selected radio dot clearly identifies active language */
+.stApp [data-testid="stRadio"] [role="radiogroup"]{justify-content:center;gap:14px!important}
+.stApp [data-testid="stRadio"] label{background:transparent!important;color:#8d6226!important}
+.stApp [data-testid="stRadio"] label p{color:#8d6226!important;font-family:'Cormorant Garamond','Amiri',serif!important;font-size:17px!important}
+.stApp [data-testid="stRadio"] input[type="radio"]{accent-color:#a8782c!important}
+.stApp [data-testid="stRadio"] [data-baseweb="radio"]>div:first-child{background:transparent!important;border-color:#a8782c!important}
+.stApp [data-testid="stRadio"] [aria-checked="true"] [data-baseweb="radio"]>div:first-child{border-color:#a8782c!important}
 </style>""", unsafe_allow_html=True)
 
 if "cart_qty" not in st.session_state:
@@ -189,14 +197,18 @@ if "page" not in st.session_state:
 def go_to(destination):
     st.session_state.page = destination
 
-def set_language(value):
-    st.session_state.lang = value
-
-nav_left, nav_en, nav_ar, nav_right = st.columns([5, .65, .75, 1.3], gap="small")
-with nav_en:
-    st.button("EN", key="lang_en", on_click=set_language, args=("English",), use_container_width=True)
-with nav_ar:
-    st.button("عربي", key="lang_ar", on_click=set_language, args=("العربية",), use_container_width=True)
+nav_left, nav_lang, nav_right = st.columns([4.5, 1.8, 1.3], gap="small")
+with nav_lang:
+    selected_language = st.radio(
+        "Language / اللغة",
+        ["EN", "عربي"],
+        index=1 if st.session_state.lang == "العربية" else 0,
+        horizontal=True,
+        label_visibility="collapsed",
+        key="language_radio",
+    )
+    st.session_state.lang = "العربية" if selected_language == "عربي" else "English"
+    ar = st.session_state.lang == "العربية"
 with nav_right:
     with st.popover("☰  MENU" if not ar else "☰  القائمة", use_container_width=True):
         st.button(local("PERFUME", "العطر"), key="menu_perfume", use_container_width=True, on_click=go_to, args=("shop",))
