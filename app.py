@@ -481,33 +481,18 @@ elif nav == "shop":
         "heart":local("Elegant Florals", "نفحات زهرية أنيقة"),
         "base":local("Woods · Leather · Amber · Musk", "الأخشاب · الجلد · العنبر · المسك")
     }
-    # Three lightweight, locally rendered botanical illustrations; no external image loading.
-    import urllib.parse
-    peppers = ''.join(
-        '<circle cx="'+str(100+(i*43)%360)+'" cy="'+str(175+(i*71)%190)+'" r="'+str(9+(i%4)*3)+'" fill="'+("#8d2830" if i%3==0 else "#b54b43" if i%3==1 else "#d47b57")+'" stroke="#f1bb8c" stroke-width="1.5"/>'
-        for i in range(44))
-    flowers = ''.join(
-        '<ellipse cx="300" cy="240" rx="78" ry="132" fill="'+("#e5a79d" if i%2 else "#f1c7b6")+'" stroke="#bd8278" stroke-width="2" transform="rotate('+str(i*45)+' 300 240)"/>'
-        for i in range(8))
-    flowers += '<circle cx="300" cy="240" r="66" fill="#d58f85"/><circle cx="300" cy="240" r="40" fill="#efb7a5"/><circle cx="300" cy="240" r="16" fill="#b76f6b"/>'
-    woods = ''.join('<path d="M'+str(65+i*62)+' 365 L'+str(145+i*58)+' 105 L'+str(200+i*58)+' 115 L'+str(132+i*58)+' 375 Z" fill="'+("#6d3e26" if i%2 else "#95613c")+'" stroke="#b98a55" stroke-width="3"/>' for i in range(6))
-    woods += '<path d="M365 345 Q425 150 485 335 L455 390 L380 385 Z" fill="#d48a24" stroke="#f1bb61" stroke-width="6"/><path d="M405 335 L444 240 L456 330 Z" fill="#f6c66d" opacity=".75"/>'
-    svg_art = {"top":peppers + '<path d="M85 325 Q225 120 420 305" fill="none" stroke="#8a5a37" stroke-width="23" opacity=".45"/>',
-               "heart":flowers,
-               "base":woods}[selected_note]
-    svg = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 460">'
-           '<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#d5ac89"/><stop offset="1" stop-color="#f8e7d0"/></linearGradient></defs>'
-           '<rect width="600" height="460" fill="url(#bg)"/>'
-           '<path d="M0 395 Q290 335 600 410 L600 460 L0 460Z" fill="#e8c6a4" opacity=".65"/>'
-           + svg_art + '</svg>')
-    art_url = "data:image/svg+xml," + urllib.parse.quote(svg, safe="")
+    # Use the existing photographic fragrance-notes asset instead of SVG illustrations.
+    # Position varies by layer while preserving the original image and brand palette.
+    photo_src = img_data("notes.jpg.png") if notes_image else perfume
+    image_position = {"top":"left center","heart":"center center","base":"right center"}[selected_note]
     st.markdown(
         '<div style="border:1px solid #d5b98e;background:#fff8ef;border-radius:9px;'
         'padding:16px;margin:14px 0 24px;box-shadow:0 8px 28px #75552b12">'
         '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));'
         'gap:22px;align-items:center">'
-        '<img src="' + art_url + '" alt="' + html.escape(scent_titles[selected_note],quote=True) +
-        '" style="width:100%;max-height:350px;object-fit:cover;border-radius:7px">'
+        '<div style="width:100%;height:320px;overflow:hidden;border-radius:7px">'
+        '<img src="' + photo_src + '" alt="' + html.escape(scent_titles[selected_note],quote=True) +
+        '" style="width:100%;height:100%;object-fit:cover;object-position:' + image_position + '"></div>'
         '<div style="padding:12px;text-align:center">'
         '<div style="font-family:Georgia,serif;color:#a17a44;letter-spacing:.16em;font-size:12px;margin-bottom:16px">'
         + html.escape(selected_note.upper() + " NOTES") + '</div>'
@@ -516,9 +501,6 @@ elif nav == "shop":
         '<div style="font-family:Georgia,serif;color:#71553d;font-size:clamp(16px,2.5vw,21px);line-height:1.7">'
         + html.escape(scent_copy[selected_note]) + '</div></div></div></div>',
         unsafe_allow_html=True)
-    if notes_image:
-        notes_src = img_data('notes.jpg.png')
-        st.markdown(f'<div style="max-width:560px;margin:20px auto"><img src="{notes_src}" alt="VÈR fragrance notes" style="display:block;width:100%;height:auto;border-radius:4px"></div>', unsafe_allow_html=True)
 
 elif nav == "payment":
     st.markdown("## " + local("PAYMENT", "الدفع"))
