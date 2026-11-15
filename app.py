@@ -11,6 +11,9 @@ def img_data(name):
     return f'data:{mime};base64,{base64.b64encode(p.read_bytes()).decode()}'
 
 if 'lang' not in st.session_state: st.session_state.lang='English'
+requested_lang = st.query_params.get("lang", "")
+if requested_lang in ("en", "ar"):
+    st.session_state.lang = "العربية" if requested_lang == "ar" else "English"
 ar=st.session_state.lang=='العربية'
 copy={
  'nav':('THE ESSENCE OF PRESENCE','جوهر الحضور'),
@@ -211,16 +214,15 @@ def go_to(destination):
 
 nav_left, nav_lang, nav_right = st.columns([4.5, 1.8, 1.3], gap="small")
 with nav_lang:
-    selected_language = st.radio(
-        "Language / اللغة",
-        ["EN", "عربي"],
-        index=1 if st.session_state.lang == "العربية" else 0,
-        horizontal=True,
-        label_visibility="collapsed",
-        key="language_radio",
+    en_style = "border-bottom:1px solid #986821;font-weight:600" if not ar else "border-bottom:1px solid transparent"
+    ar_style = "border-bottom:1px solid #986821;font-weight:600" if ar else "border-bottom:1px solid transparent"
+    st.markdown(
+        f'<div style="display:flex;justify-content:center;align-items:center;gap:10px;padding-top:7px;white-space:nowrap">'
+        f'<a href="?lang=en" target="_self" style="font-family:Georgia,serif;color:#986821;text-decoration:none;padding:3px 2px;{en_style}">EN</a>'
+        f'<span style="color:#bca078">|</span>'
+        f'<a href="?lang=ar" target="_self" style="font-family:Georgia,serif;color:#986821;text-decoration:none;padding:3px 2px;{ar_style}">عربي</a>'
+        f'</div>', unsafe_allow_html=True
     )
-    st.session_state.lang = "العربية" if selected_language == "عربي" else "English"
-    ar = st.session_state.lang == "العربية"
 with nav_right:
     with st.popover("☰  MENU" if not ar else "☰  القائمة", use_container_width=True):
         st.button(local("PERFUME", "العطر"), key="menu_perfume", use_container_width=True, on_click=go_to, args=("shop",))
