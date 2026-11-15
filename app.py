@@ -594,6 +594,14 @@ elif nav == "account":
                             detail_row(local("Quantity","الكمية"),details.get("quantity","—"))
                             detail_row(local("Perfume subtotal","مجموع العطر"),"AED "+money(details.get("subtotal")))
                             detail_row(local("Delivery","التوصيل"),"AED "+money(details.get("delivery_fee")))
+                            try:
+                                adjustment=round(float(details["total"])-float(details["subtotal"])-float(details["delivery_fee"]),2)
+                            except (TypeError,ValueError,KeyError):
+                                adjustment=None
+                            if adjustment is not None and abs(adjustment)>0.001:
+                                adjustment_label=(local("Cash on delivery fee","رسوم الدفع عند الاستلام")
+                                    if abs(adjustment-5)<0.001 else local("Additional charge / adjustment","رسوم إضافية / تعديل"))
+                                detail_row(adjustment_label,("AED "+money(adjustment)))
                             detail_row(local("Total","الإجمالي"),"AED "+money(details.get("total")),True)
                             st.markdown('<div style="font-family:Georgia,serif;font-size:19px;color:#8e692f;'
                                 'padding:23px 0 5px">'+html.escape(local("DELIVERY & STATUS","التوصيل وحالة الطلب"))+'</div>',unsafe_allow_html=True)
@@ -601,6 +609,35 @@ elif nav == "account":
                             detail_row(local("Area","المنطقة"),details.get("area") or "—")
                             detail_row(local("Payment status","حالة الدفع"),payment_labels.get(details.get("payment_status"),local("Contact the store","يرجى التواصل مع المتجر")))
                             detail_row(local("Order status","حالة الطلب"),fulfillment_labels.get(details.get("fulfillment_status"),local("Contact the store","يرجى التواصل مع المتجر")))
+                            st.markdown('<div style="font-family:Georgia,serif;font-size:19px;color:#8e692f;'
+                                'padding:23px 0 10px">'+html.escape(local("ORDER JOURNEY","مراحل الطلب"))+'</div>',unsafe_allow_html=True)
+                            stage=details.get("fulfillment_status","new")
+                            journey=[("new",local("Received","تم الاستلام")),
+                                     ("preparing",local("Preparing","قيد التجهيز")),
+                                     ("shipped",local("Shipped","تم الشحن")),
+                                     ("delivered",local("Delivered","تم التوصيل"))]
+                            if stage=="cancelled":
+                                st.warning(local("This order has been cancelled.","تم إلغاء هذا الطلب."))
+                            elif stage in dict(journey):
+                                current=[x[0] for x in journey].index(stage)
+                                parts=[]
+                                for idx,(code,label) in enumerate(journey):
+                                    active=idx<=current
+                                    circle="#99703a" if active else "#e5d7c3"
+                                    text_color="#664725" if active else "#978572"
+                                    symbol="✓" if idx<current else "●" if idx==current else str(idx+1)
+                                    parts.append(
+                                        '<div style="flex:1;min-width:65px;text-align:center">'
+                                        '<div style="width:31px;height:31px;margin:0 auto 9px;border-radius:50%;'
+                                        'background:'+circle+';color:'+("#fffaf2" if active else "#806a50")+';'
+                                        'display:flex;align-items:center;justify-content:center;font-size:14px">'
+                                        +symbol+'</div><div style="font-size:12px;color:'+text_color+';'
+                                        'font-family:Georgia,serif;line-height:1.4">'+html.escape(label)+'</div></div>')
+                                st.markdown('<div style="display:flex;gap:7px;padding:17px 8px;'
+                                    'background:#fff8ed;border:1px solid #dfc9a8;border-radius:9px;'
+                                    'margin:8px 0 15px">'+''.join(parts)+'</div>',unsafe_allow_html=True)
+                            else:
+                                st.info(local("Contact HOUSE OF VÈR for the current order stage.","يرجى التواصل مع HOUSE OF VÈR لمعرفة مرحلة الطلب."))
                             st.caption(local("Payment verification and order updates are handled by HOUSE OF VÈR.","التحقق من الدفع وتحديث الطلبات يتم من قبل HOUSE OF VÈR."))
                     except Exception:
                         st.warning(local("Order details are not enabled yet. The store must run the secure order-details SQL setup.","تفاصيل الطلب غير مفعّلة بعد. يجب تشغيل إعداد SQL الآمن لتفاصيل الطلبات."))
