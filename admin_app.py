@@ -87,6 +87,28 @@ for order in orders:
         st.write("Delivery:",order.get("emirate"),"—",order.get("area"))
         st.write("Address:",order.get("address"))
         st.write("Quantity:",order.get("quantity"),"| Delivery fee: AED",order.get("delivery_fee"))
+        proof_path = order.get("payment_proof_path")
+        if proof_path:
+            st.caption("Customer submitted a payment screenshot. Verify the payment directly in Ziina before marking paid.")
+            if st.button("View private payment screenshot", key="proof_"+oid):
+                try:
+                    base=secret("SUPABASE_URL").rstrip("/")
+                    key=secret("SUPABASE_SERVICE_ROLE_KEY")
+                    headers={"apikey":key}
+                    if not key.startswith("sb_secret_"):
+                        headers["Authorization"]="Bearer "+key
+                    proof_url=base+"/storage/v1/object/payment-proofs/"+urllib.parse.quote(proof_path,safe="/")
+                    request=urllib.request.Request(proof_url,headers=headers)
+                    with urllib.request.urlopen(request,timeout=12) as response:
+                        image_bytes=response.read(5*1024*1024+1)
+                    if len(image_bytes)>5*1024*1024:
+                        raise ValueError("File too large")
+                    st.image(image_bytes,caption="Customer-submitted proof — NOT verified")
+                except Exception:
+                    st.error("Unable to load private payment screenshot.")
+        else:
+            st.caption("No payment screenshot submitted yet.")
+
         pay_values=["awaiting_verification","paid_verified","failed","refunded"]
         fulfillment=["new","preparing","shipped","delivered","cancelled"]
         with st.form("update_"+oid):

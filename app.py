@@ -1,7 +1,7 @@
 import base64
 from pathlib import Path
 import streamlit as st
-from order_store import save_order
+from order_store import save_order, upload_payment_proof
 
 st.set_page_config(page_title='HOUSE OF VÈR | The Essence of Presence', page_icon='✦', layout='wide', initial_sidebar_state='collapsed')
 BASE=Path(__file__).parent
@@ -437,8 +437,9 @@ else:
             customer = st.text_input(local("Full name", "الاسم الكامل"), max_chars=120)
             phone = st.text_input(local("UAE mobile number", "رقم الهاتف الإماراتي"), max_chars=30)
             email = st.text_input(local("Email address", "البريد الإلكتروني"), max_chars=254)
-            instagram = st.text_input(local("Instagram username (optional)", "حساب إنستغرام (اختياري)"), max_chars=60)
+            instagram = st.text_input(local("Instagram username (required)", "حساب إنستغرام (إجباري)"), max_chars=60)
             address = st.text_area(local("Delivery address and area", "العنوان والمنطقة"), max_chars=500)
+            st.caption(local("IMPORTANT: The full name on your order must match the name on your Ziina payment account. We use it to match payments manually.", "مهم: يجب أن يطابق الاسم في الطلب الاسم المسجل في حساب زينة المستخدم للدفع حتى نتمكن من مطابقة الدفعة يدوياً."))
             confirmed = st.form_submit_button(local("SUBMIT ORDER REQUEST", "إرسال الطلب"), use_container_width=True)
         fingerprint = (customer.strip(), phone.strip(), email.strip(), instagram.strip(), address.strip(), emirate, area, cart_qty, total)
         if confirmed and st.session_state.get("saved_order_fingerprint") != fingerprint:
@@ -456,6 +457,24 @@ else:
             st.markdown(f"**{local('Total', 'الإجمالي')}: AED {total}**")
             st.caption(local("Payment is NOT verified. Save your order number. No confirmation email is sent.", "لم يتم التحقق من الدفع. احتفظ برقم الطلب. لن يتم إرسال بريد تأكيد."))
             st.link_button(local("CONTINUE TO ZIINA", "المتابعة إلى زينة"), "https://pay.ziina.com/Sulaiman97/XGrEI3duJ?source=app", use_container_width=True)
+            st.markdown(f"#### {local('Upload Ziina payment screenshot', 'ارفع صورة إثبات الدفع من زينة')}")
+            st.caption(local("After paying, return here and upload a screenshot showing the transaction. Do not include card numbers or other unnecessary financial details.", "بعد الدفع ارجع وارفع صورة توضح العملية. لا ترفع أرقام البطاقات أو أي معلومات مالية غير ضرورية."))
+            with st.form("payment_proof_form"):
+                proof = st.file_uploader(local("Payment screenshot (required)", "صورة إثبات الدفع (إجبارية)"), type=["png","jpg","jpeg"], key="payment_proof")
+                proof_submit = st.form_submit_button(local("SUBMIT PAYMENT PROOF", "إرسال إثبات الدفع"), use_container_width=True)
+            if proof_submit:
+                try:
+                    with st.spinner(local("Uploading screenshot...", "جارٍ رفع الصورة...")):
+                        upload_payment_proof(st.session_state.saved_order_id, proof)
+                    st.session_state.proof_uploaded_for = st.session_state.saved_order_id
+                    st.success(local("Screenshot received. Payment is still awaiting manual verification.", "تم استلام الصورة. الدفع بانتظار التحقق اليدوي."))
+                except ValueError as exc:
+                    st.error(str(exc))
+                except Exception:
+                    st.error(local("Could not upload proof. Please try again or contact us on Instagram. Payment is not confirmed.", "تعذر رفع إثبات الدفع. حاول مرة أخرى أو تواصل عبر إنستغرام. الدفع غير مؤكد."))
+            elif st.session_state.get("proof_uploaded_for") == st.session_state.saved_order_id:
+                st.info(local("Payment proof submitted. Awaiting store verification.", "تم إرسال إثبات الدفع وبانتظار تحقق المتجر."))
+
             st.markdown(f'<div class="checkout-notice">{local("Check the recipient and exact amount in Ziina before paying. Payment is verified manually.", "تأكد من المستلم والمبلغ في زينة قبل الدفع. يتم التحقق من الدفع يدوياً.")}</div>', unsafe_allow_html=True)
         else:
             st.caption(local("Submitting creates an order request, not a confirmed payment.", "إرسال الطلب يسجل طلب شراء وليس دفعاً مؤكداً."))
