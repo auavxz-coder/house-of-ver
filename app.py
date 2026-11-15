@@ -133,6 +133,21 @@ div.stButton > button{min-height:44px}
 .stApp [data-testid="stPopover"] button p{color:#986821!important}
 .stApp [data-testid="stPopover"] button:hover{background:#f8ebd9!important}
 @media(max-width:650px){.stApp [data-testid="stPopover"] button{font-size:15px!important}.stApp [data-testid="stSelectbox"]{max-width:170px;margin-left:auto}}
+
+/* Force the language control to blend into the champagne background */
+.stApp .st-key-lang [data-baseweb="select"],
+.stApp .st-key-lang [data-baseweb="select"] > div,
+.stApp .st-key-lang [data-baseweb="select"] > div > div,
+.stApp .st-key-lang [data-baseweb="select"] input {
+ background-color:#fff5e9!important;
+ background:#fff5e9!important;
+ color:#8d6226!important;
+ -webkit-text-fill-color:#8d6226!important;
+ border-color:#c7a578!important;
+ box-shadow:none!important;
+}
+.stApp .st-key-lang [data-baseweb="select"] *{color:#8d6226!important}
+.stApp .st-key-lang label,.stApp .st-key-lang label p{color:#8d6226!important}
 </style>""", unsafe_allow_html=True)
 
 if "cart_qty" not in st.session_state:
