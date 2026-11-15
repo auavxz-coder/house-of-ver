@@ -87,6 +87,23 @@ st.markdown("""<style>
 div.stButton > button[kind="primary"]{background:#946d36;color:white;border-radius:2px;border:0;min-height:48px}
 div.stButton > button{min-height:44px}
 @media(max-width:650px){.block-container{padding:1rem .85rem 3rem}.bottle{max-width:280px;margin:12px auto}.section-title{margin:22px 0 10px}.copy{font-size:1.3rem}.price{font-size:2rem}}
+
+/* Consistent cream and gold checkout controls regardless of Streamlit dark mode */
+.stApp [data-testid="stForm"]{background:#fff8ef!important;border:1px solid #c7a677!important;border-radius:8px!important;padding:20px!important}
+.stApp [data-testid="stWidgetLabel"] p,.stApp label,.stApp [data-testid="stMarkdownContainer"] p{color:#493425}
+.stApp div[data-baseweb="input"],.stApp div[data-baseweb="textarea"],.stApp div[data-baseweb="select"]>div,.stApp [data-testid="stNumberInput"] input{
+ background:#fffdf9!important;color:#493425!important;border-color:#cbb28b!important
+}
+.stApp input,.stApp textarea,.stApp input:focus,.stApp textarea:focus{background:#fffdf9!important;color:#493425!important;-webkit-text-fill-color:#493425!important;caret-color:#493425!important}
+.stApp input::placeholder,.stApp textarea::placeholder{color:#8c7a65!important;opacity:1!important}
+.stApp [data-baseweb="select"] span,.stApp [data-baseweb="select"] div{color:#493425}
+.stApp [data-testid="stFormSubmitButton"] button,.stApp div.stButton>button[kind="primary"]{
+ background:#946d36!important;color:#fffaf2!important;border:1px solid #946d36!important;font-weight:600!important
+}
+.stApp [data-testid="stFormSubmitButton"] button p,.stApp div.stButton>button[kind="primary"] p{color:#fffaf2!important}
+.stApp [data-testid="stFormSubmitButton"] button:hover{background:#765122!important}
+.stApp [data-testid="stRadio"] label p{color:#493425!important}
+@media(max-width:650px){.stApp [data-testid="stForm"]{padding:14px!important}}
 </style>""", unsafe_allow_html=True)
 
 if "cart_qty" not in st.session_state:
