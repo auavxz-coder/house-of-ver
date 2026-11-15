@@ -3,6 +3,7 @@ from pathlib import Path
 import streamlit as st
 from order_store import save_order, upload_payment_proof, choose_payment, payment_state, lookup_order_status
 import customer_auth as auth
+from order_emails import send_order_received
 
 st.set_page_config(page_title='HOUSE OF VÈR | The Essence of Presence', page_icon='✦', layout='wide', initial_sidebar_state='collapsed')
 BASE=Path(__file__).parent
@@ -922,6 +923,13 @@ elif nav == "payment":
         st.warning(local("Submit an order first.", "يرجى إرسال الطلب أولاً."))
     else:
         st.write(local("Order number", "رقم الطلب") + ": " + oid)
+        email_notice = st.session_state.get("order_email_notice")
+        if email_notice == "sent":
+            st.success(local("Order received. A confirmation-of-receipt email was sent. Payment is not yet verified.",
+                             "تم استلام الطلب وإرسال إيميل باستلامه. الدفع لم يتم التحقق منه بعد."))
+        elif email_notice in ("partial","unavailable"):
+            st.info(local("Your order is saved, but email delivery could not be fully confirmed. Keep your order number.",
+                          "تم حفظ طلبك، لكن تعذر تأكيد إرسال جميع الإيميلات. يرجى الاحتفاظ برقم الطلب."))
         try:
             saved_payment = payment_state(oid)
             status = saved_payment["payment_status"]
@@ -1066,6 +1074,16 @@ else:
                     oid = save_order(customer, phone, email, instagram, address, emirate, area, cart_qty, PRICE, delivery, customer_token=st.session_state.get("customer_token"))
                 st.session_state.saved_order_fingerprint = fingerprint
                 st.session_state.saved_order_id = oid
+                # Best-effort notifications; an email failure must never duplicate or cancel a saved order.
+                try:
+                    result = send_order_received(
+                        oid, customer, email, phone, instagram, address, emirate, area,
+                        int(cart_qty), float(PRICE)*int(cart_qty), float(delivery), float(total))
+                    st.session_state.order_email_notice = (
+                        "sent" if result["customer"] and result["store"] else
+                        "partial" if result["customer"] or result["store"] else "unavailable")
+                except Exception:
+                    st.session_state.order_email_notice = "unavailable"
             except ValueError as exc:
                 st.error(str(exc))
             except Exception:
