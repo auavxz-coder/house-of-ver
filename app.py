@@ -202,6 +202,25 @@ text-decoration:underline!important;text-decoration-color:#986821!important;text
 }
 .stApp .st-key-language_radio label:hover p{color:#79521e!important}
 @media(max-width:650px){.stApp .st-key-language_radio label{padding:3px 4px!important}.stApp .st-key-language_radio label p{font-size:14px!important}}
+
+/* Streamlit popover panel is rendered in a portal: style globally */
+div[data-baseweb="popover"],div[data-baseweb="popover"]>div,
+div[data-baseweb="popover"] [data-testid="stPopoverBody"],
+div[data-testid="stPopoverBody"]{
+background:#fff5e9!important;background-color:#fff5e9!important;
+color:#795626!important;border-color:#d3b58a!important;box-shadow:0 12px 28px #70502d24!important
+}
+div[data-baseweb="popover"] button,div[data-testid="stPopoverBody"] button{
+background:#fff5e9!important;background-color:#fff5e9!important;
+border:1px solid #c8a675!important;border-radius:2px!important;
+color:#8d6226!important;box-shadow:none!important
+}
+div[data-baseweb="popover"] button p,div[data-baseweb="popover"] button span,
+div[data-testid="stPopoverBody"] button p{color:#8d6226!important}
+div[data-baseweb="popover"] button:hover,div[data-testid="stPopoverBody"] button:hover{background:#f5e5cf!important}
+div[data-baseweb="popover"] button:focus,div[data-testid="stPopoverBody"] button:focus{
+outline:1px solid #b88a40!important;box-shadow:none!important;border-color:#b88a40!important
+}
 </style>""", unsafe_allow_html=True)
 
 if "cart_qty" not in st.session_state:
