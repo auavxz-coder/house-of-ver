@@ -416,7 +416,23 @@ elif nav == "shop":
         st.session_state.cart_qty += int(qty)
         st.session_state.page = "cart"
         st.rerun()
-    st.info(local("Prefer to order via Instagram and pay by bank transfer? Contact us on Instagram to arrange your order and receive transfer details.", "تبين تطلبين عبر الإنستغرام وتدفعين بتحويل بنكي؟ تواصلي ويانا عشان نرتب الطلب ونعطيج تفاصيل التحويل."))
+    st.markdown(
+        '<div style="background:#fff8ef;color:#65482c;border:1px solid #d6b98c;'
+        'border-left:3px solid #a67b3c;border-radius:5px;padding:17px 18px;'
+        'line-height:1.65;font-size:16px;margin:16px 0">'
+        + html.escape(local("Prefer to order via Instagram and pay by bank transfer? Contact us on Instagram to arrange your order and receive transfer details.", "تبين تطلبين عبر الإنستغرام وتدفعين بتحويل بنكي؟ تواصلي ويانا عشان نرتب الطلب ونعطيج تفاصيل التحويل."))
+        + '</div>', unsafe_allow_html=True)
+    st.markdown("""<style>
+    [data-testid="stLinkButton"] a[href*="ig.me/m/houseofver_"] {
+      background:#946d36!important;color:#fff8ef!important;
+      border:1px solid #946d36!important;border-radius:5px!important;
+      font-family:Georgia,serif!important;letter-spacing:.025em!important;
+      min-height:48px!important;box-shadow:none!important;
+    }
+    [data-testid="stLinkButton"] a[href*="ig.me/m/houseofver_"]:hover {
+      background:#7d592b!important;color:#ffffff!important;
+    }
+    </style>""", unsafe_allow_html=True)
     st.link_button(local("ORDER VIA INSTAGRAM — BANK TRANSFER", "اطلبي عبر الإنستغرام — تحويل بنكي"), "https://ig.me/m/houseofver_", use_container_width=True)
     st.markdown(f'<div class="fine"></div><div class="section-title">{t("about_title")}</div><div class="copy">{t("about")}</div>', unsafe_allow_html=True)
     st.markdown(f'<div class="fine"></div><div class="section-title">{local("FRAGRANCE NOTES", "نوتات العطر")}</div>', unsafe_allow_html=True)
