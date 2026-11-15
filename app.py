@@ -982,20 +982,19 @@ elif nav == "shop":
     scent_files = {"top": "scent_top.png", "heart": "scent_heart.png", "base": "scent_base.png"}
     selected_file = scent_files[selected_note]
     photo_src = img_data(selected_file) if (BASE / selected_file).exists() else (img_data("notes.jpg.png") if notes_image else perfume)
+    # The three editorial images already include their note titles.
+    # Keep the copy below rather than repeating image text beside the artwork.
     st.markdown(
-        '<div style="border:1px solid #d5b98e;background:#fff8ef;border-radius:9px;'
-        'padding:16px;margin:14px 0 24px;box-shadow:0 8px 28px #75552b12">'
-        '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));'
-        'gap:22px;align-items:center">'
-        '<img src="' + photo_src + '" alt="' + html.escape(scent_titles[selected_note],quote=True) +
-        '" style="display:block;width:100%;height:auto;aspect-ratio:3/2;object-fit:cover;border-radius:7px">'
-        '<div style="padding:12px;text-align:center">'
-        '<div style="font-family:Georgia,serif;color:#a17a44;letter-spacing:.16em;font-size:12px;margin-bottom:16px">'
-        + html.escape(selected_note.upper() + " NOTES") + '</div>'
-        '<div style="font-family:Georgia,serif;color:#67452d;font-size:clamp(20px,4vw,29px);margin-bottom:18px">'
-        + html.escape(scent_titles[selected_note]) + '</div>'
-        '<div style="font-family:Georgia,serif;color:#71553d;font-size:clamp(16px,2.5vw,21px);line-height:1.7">'
-        + html.escape(scent_copy[selected_note]) + '</div></div></div></div>',
+        '<div style="max-width:840px;margin:18px auto 26px">'
+        '<div style="background:#f1e1cd;border:1px solid #dfc5a0;'
+        'padding:9px;border-radius:9px;box-shadow:0 14px 35px rgba(83,54,27,.07)">'
+        '<img src="'+photo_src+'" alt="'+html.escape(scent_titles[selected_note],quote=True)+'" '
+        'style="display:block;width:100%;height:auto;aspect-ratio:3/2;'
+        'object-fit:contain;border-radius:5px;background:#e6c7a7"></div>'
+        '<div style="max-width:650px;margin:20px auto 0;text-align:center;'
+        'font-family:Georgia,serif;color:#785a3d;font-size:clamp(16px,2vw,19px);'
+        'line-height:1.75;padding:0 12px">'
+        +html.escape(scent_copy[selected_note])+'</div></div>',
         unsafe_allow_html=True)
 
 elif nav == "payment":
