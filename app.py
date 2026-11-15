@@ -351,7 +351,7 @@ if ar:
     st.markdown('<style>.stApp .st-key-lang_ar button{border-bottom:1px solid #986821!important}</style>',unsafe_allow_html=True)
 else:
     st.markdown('<style>.stApp .st-key-lang_en button{border-bottom:1px solid #986821!important}</style>',unsafe_allow_html=True)
-nav = st.session_state.page
+nav = "thankyou_preview" if st.query_params.get("preview") == "thankyou" else st.session_state.page
 
 if nav == "thankyou_preview":
     render_payment_thank_you(preview=True)
