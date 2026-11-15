@@ -153,7 +153,7 @@ if nav == "shop":
 else:
     st.markdown(f'<div class="section-title">{local("YOUR SHOPPING BAG", "سلة التسوق")}</div>', unsafe_allow_html=True)
     if st.session_state.cart_qty == 0:
-        st.info(local("Your bag is empty.", "سلتك فارغة."))
+        st.markdown(f'<div style="background:#fff9ef!important;color:#60482e!important;border:1px solid #d7b98d;border-left:4px solid #a8782c;border-radius:6px;padding:18px 20px;margin:12px 0 16px;font-size:17px">{local("Your bag is empty.", "سلتك فارغة.")}</div>', unsafe_allow_html=True)
         if st.button(local("Shop VÈR", "تسوق ڤير"), use_container_width=True):
             st.session_state.page = "shop"
             st.rerun()
