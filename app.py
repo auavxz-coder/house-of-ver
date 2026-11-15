@@ -613,18 +613,13 @@ else:
             email = st.text_input(local("Email address", "البريد الإلكتروني"), max_chars=254)
             instagram = st.text_input(local("Instagram username (required)", "حساب إنستغرام (إجباري)"), max_chars=60)
             address = st.text_area(local("Delivery address and area", "العنوان والمنطقة"), max_chars=500)
-            gift = st.checkbox(local("THIS ORDER IS A GIFT", "هذا الطلب هدية"), key="gift_order")
-            gift_message = st.text_area(local("Gift message (optional)", "رسالة الإهداء (اختيارية)"),max_chars=300,key="gift_message") if gift else ""
-            if gift:
-                st.caption(local("Gift message is included with your order request. Special wrapping is not guaranteed; contact us to confirm availability.", "تُحفظ رسالة الإهداء مع الطلب. التغليف الخاص غير مضمون؛ يرجى التواصل معنا للتأكد من توفره."))
-
             st.caption(local("IMPORTANT: The full name on your order must match the name on your Ziina payment account. We use it to match payments manually.", "مهم: يجب أن يطابق الاسم في الطلب الاسم المسجل في حساب زينة المستخدم للدفع حتى نتمكن من مطابقة الدفعة يدوياً."))
             confirmed = st.form_submit_button(local("SUBMIT ORDER REQUEST", "إرسال الطلب"), use_container_width=True)
-        fingerprint = (customer.strip(), phone.strip(), email.strip(), instagram.strip(), address.strip(), emirate, area, cart_qty, total, gift, gift_message)
+        fingerprint = (customer.strip(), phone.strip(), email.strip(), instagram.strip(), address.strip(), emirate, area, cart_qty, total)
         if confirmed and st.session_state.get("saved_order_fingerprint") != fingerprint:
             try:
                 with st.spinner(local("Saving order...", "جارٍ تسجيل الطلب...")):
-                    oid = save_order(customer, phone, email, instagram, address, emirate, area, cart_qty, PRICE, delivery, gift, gift_message)
+                    oid = save_order(customer, phone, email, instagram, address, emirate, area, cart_qty, PRICE, delivery)
                 st.session_state.saved_order_fingerprint = fingerprint
                 st.session_state.saved_order_id = oid
             except ValueError as exc:
